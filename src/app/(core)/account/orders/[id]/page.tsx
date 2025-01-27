@@ -11,15 +11,18 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useCurrencyStore } from "@/stores/currency.stores";
 import { api } from "@/trpc/react";
 import type { InvoiceStatus } from "xendit-node/invoice/models";
+
+export const dynamic = "force-dynamic";
 
 export default function OrderDetail() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
 
-  const [invoice] = api.xendit.getDetailInvoice.useSuspenseQuery({
+  const { data: invoice, isPending } = api.xendit.getDetailInvoice.useQuery({
     externalId: id,
   });
 
@@ -41,6 +44,72 @@ export default function OrderDetail() {
         return "bg-gray-500";
     }
   };
+
+  if (isPending) {
+    return (
+      <div className="min-h-screen bg-gray-100">
+        <Header />
+        <main className="container mx-auto px-4 py-8">
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-8 w-[250px]" />
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <Skeleton className="h-4 w-[100px]" />
+                  <Skeleton className="mt-2 h-4 w-[150px]" />
+                </div>
+                <div>
+                  <Skeleton className="h-4 w-[80px]" />
+                  <Skeleton className="mt-2 h-6 w-[100px]" />
+                </div>
+                <div>
+                  <Skeleton className="h-4 w-[60px]" />
+                  <div className="mt-2 space-y-2">
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-full" />
+                  </div>
+                </div>
+                <div>
+                  <Skeleton className="h-4 w-[70px]" />
+                  <Skeleton className="mt-2 h-4 w-[120px]" />
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Skeleton className="h-10 w-[120px]" />
+            </CardFooter>
+          </Card>
+        </main>
+      </div>
+    );
+  }
+
+  if (!invoice) {
+    return (
+      <div className="min-h-screen bg-gray-100">
+        <Header />
+        <main className="container mx-auto px-4 py-8">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-2xl font-bold">
+                Invoice Not Found
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>The requested invoice could not be found.</p>
+            </CardContent>
+            <CardFooter>
+              <Button onClick={() => router.push("/account/orders")}>
+                Back to Orders
+              </Button>
+            </CardFooter>
+          </Card>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-100">
