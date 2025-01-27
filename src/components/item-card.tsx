@@ -40,7 +40,9 @@ export function ItemCard({
         <CardTitle>{item.name}</CardTitle>
       </CardHeader>
       <CardContent>
-        <p className="text-gray-600">{item.description}</p>
+        <p className="whitespace-normal break-words text-gray-600">
+          {item.description}
+        </p>
         <p className="mt-2 text-2xl font-bold text-gray-800">
           {currencySymbol}
           {formattedPrice}
