@@ -6,12 +6,18 @@ import { decrypt } from "@/server/auth";
 export async function middleware(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
 
+  // List of routes that can be accessed by authenticated users or guests
+  const routes = ["/"] as const;
+
   // List of public routes that don't require authentication
   const publicRoutes = ["/", "/sign-in", "/sign-up"] as const;
   type PublicRoute = (typeof publicRoutes)[number];
 
   const isPublicRoute = (path: string): path is PublicRoute =>
     publicRoutes.includes(path as PublicRoute);
+
+  const isRoute = (path: string): path is (typeof routes)[number] =>
+    !routes.includes(path as (typeof routes)[number]);
 
   if (!token && !isPublicRoute(request.nextUrl.pathname)) {
     return NextResponse.redirect(new URL("/sign-in", request.url));
@@ -25,8 +31,11 @@ export async function middleware(request: NextRequest) {
       const requestHeaders = new Headers(request.headers);
       requestHeaders.set("user", JSON.stringify(payload));
 
-      // If user is logged in and tries to access login/register, redirect to dashboard
-      if (isPublicRoute(request.nextUrl.pathname)) {
+      // If user is logged in and tries to access login/register (except home), redirect to dashboard
+      if (
+        isPublicRoute(request.nextUrl.pathname) &&
+        isRoute(request.nextUrl.pathname)
+      ) {
         return NextResponse.redirect(new URL("/", request.url));
       }
 
