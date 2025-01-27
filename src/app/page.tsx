@@ -68,6 +68,7 @@ export default function Home() {
                 onBuyNow={handleBuyNow}
                 currencySymbol={currencies[selectedCurrency].symbol}
                 currencyRate={currencies[selectedCurrency].rate}
+                isLoggedIn={isLoggedIn}
               />
             ))
           )}

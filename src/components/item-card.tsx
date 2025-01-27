@@ -18,6 +18,7 @@ interface ItemCardProps {
   onBuyNow: (item: Items, quantity: number) => void;
   currencySymbol: string;
   currencyRate: number;
+  isLoggedIn: boolean;
 }
 
 export function ItemCard({
@@ -26,6 +27,7 @@ export function ItemCard({
   onBuyNow,
   currencySymbol,
   currencyRate,
+  isLoggedIn,
 }: ItemCardProps) {
   const [quantity, setQuantity] = useState(1);
 
@@ -53,30 +55,34 @@ export function ItemCard({
             <p>Updated: {format(item.updatedAt, "yyyy-MM-dd")}</p>
           )}
         </div>
-        <div className="mt-4 flex items-center">
-          <Button variant="outline" size="icon" onClick={decrementQuantity}>
-            <Minus className="h-4 w-4" />
-          </Button>
-          <Input
-            type="number"
-            min="1"
-            value={quantity}
-            onChange={(e) =>
-              setQuantity(Math.max(1, Number.parseInt(e.target.value) || 1))
-            }
-            className="mx-2 w-16 text-center"
-          />
-          <Button variant="outline" size="icon" onClick={incrementQuantity}>
-            <Plus className="h-4 w-4" />
-          </Button>
-        </div>
+        {isLoggedIn && (
+          <div className="mt-4 flex items-center">
+            <Button variant="outline" size="icon" onClick={decrementQuantity}>
+              <Minus className="h-4 w-4" />
+            </Button>
+            <Input
+              type="number"
+              min="1"
+              value={quantity}
+              onChange={(e) =>
+                setQuantity(Math.max(1, Number.parseInt(e.target.value) || 1))
+              }
+              className="mx-2 w-16 text-center"
+            />
+            <Button variant="outline" size="icon" onClick={incrementQuantity}>
+              <Plus className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
       </CardContent>
-      <CardFooter className="flex justify-between">
-        <Button onClick={() => onAddToCart(item, quantity)} variant="outline">
-          <ShoppingCart className="mr-2 h-4 w-4" /> Add to Cart
-        </Button>
-        <Button onClick={() => onBuyNow(item, quantity)}>Buy Now</Button>
-      </CardFooter>
+      {isLoggedIn && (
+        <CardFooter className="flex justify-between">
+          <Button onClick={() => onAddToCart(item, quantity)} variant="outline">
+            <ShoppingCart className="mr-2 h-4 w-4" /> Add to Cart
+          </Button>
+          <Button onClick={() => onBuyNow(item, quantity)}>Buy Now</Button>
+        </CardFooter>
+      )}
     </Card>
   );
 }
