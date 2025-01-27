@@ -1,0 +1,1 @@
+ALTER TABLE "user_cart" ADD COLUMN "quantity" integer NOT NULL;

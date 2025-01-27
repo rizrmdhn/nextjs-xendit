@@ -15,6 +15,13 @@
       "when": 1737938696178,
       "tag": "0001_dazzling_kree",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1737942484355,
+      "tag": "0002_wide_goblin_queen",
+      "breakpoints": true
     }
   ]
 }

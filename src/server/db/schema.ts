@@ -124,6 +124,7 @@ export const userCart = createTable(
         onDelete: "cascade",
       })
       .notNull(),
+    quantity: integer("quantity").notNull(),
     createdAt: timestamp("created_at", {
       withTimezone: true,
       mode: "string",

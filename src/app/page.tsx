@@ -4,42 +4,49 @@ import { useState } from "react";
 import { Header } from "@/components/header";
 import { ItemCard } from "@/components/item-card";
 import type { Items } from "@/types/item.types";
-import { globalSuccessToast } from "@/lib/toast";
+import { globalErrorToast, globalSuccessToast } from "@/lib/toast";
 import { api } from "@/trpc/react";
 import { currencies } from "@/lib/constants";
 
 export default function Home() {
+  const utils = api.useUtils();
+
   const [me] = api.auth.me.useSuspenseQuery();
 
   const [items] = api.item.getItems.useSuspenseQuery();
 
-  const [cartItems, setCartItems] = useState<
-    { item: Items; quantity: number }[]
-  >([]);
+  const [cartItems] = api.cart.getCart.useSuspenseQuery();
+
   const [selectedCurrency, setSelectedCurrency] =
     useState<keyof typeof currencies>("USD");
 
-  const handleAddToCart = (item: Items, quantity: number) => {
-    setCartItems((prevItems) => {
-      const existingItem = prevItems.find(
-        (cartItem) => cartItem.item.id === item.id,
+  const addToCartMutation = api.cart.addToCart.useMutation({
+    onSuccess: async (_data, variables) => {
+      globalSuccessToast(
+        `Added ${variables.quantity} ${variables.name} to the cart.`,
       );
-      if (existingItem) {
-        return prevItems.map((cartItem) =>
-          cartItem.item.id === item.id
-            ? { ...cartItem, quantity: cartItem.quantity + quantity }
-            : cartItem,
-        );
-      } else {
-        return [...prevItems, { item, quantity }];
-      }
+
+      await utils.cart.getCart.invalidate();
+    },
+    onError: (error) => {
+      globalErrorToast(error.message);
+    },
+  });
+
+  const handleAddToCart = (item: Items, quantity: number) => {
+    addToCartMutation.mutate({
+      name: item.name,
+      itemId: item.id,
+      quantity,
     });
-    globalSuccessToast(`Added ${quantity} ${item.name} to the cart.`);
   };
 
   const handleBuyNow = (item: Items, quantity: number) => {
-    setCartItems([{ item, quantity }]);
-    globalSuccessToast(`Bought ${quantity} ${item.name}.`);
+    addToCartMutation.mutate({
+      name: item.name,
+      itemId: item.id,
+      quantity,
+    });
   };
 
   return (
