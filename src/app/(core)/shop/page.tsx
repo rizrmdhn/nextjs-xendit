@@ -63,7 +63,6 @@ export default function Home() {
                 item={item}
                 onAddToCart={handleAddToCart}
                 onBuyNow={handleBuyNow}
-                currencySymbol={currencies[selectedCurrency].symbol}
                 currencyRate={currencies[selectedCurrency].rate}
                 isLoggedIn={!!me}
               />

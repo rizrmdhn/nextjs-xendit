@@ -130,3 +130,20 @@ export async function removeItemFromCart(userId: string, itemId: string) {
 
   return cartItem;
 }
+
+export async function clearUserCart(userId: string) {
+  const cartItems = await db
+    .delete(userCart)
+    .where(eq(userCart.userId, userId))
+    .returning()
+    .execute();
+
+  if (!cartItems) {
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Failed to clear cart",
+    });
+  }
+
+  return cartItems;
+}

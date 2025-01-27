@@ -11,12 +11,12 @@ import {
 import { Plus, Minus, ShoppingCart } from "lucide-react";
 import type { Items } from "@/types/item.types";
 import { format } from "date-fns";
+import { useCurrencyStore } from "@/stores/currency.stores";
 
 interface ItemCardProps {
   item: Items;
   onAddToCart: (item: Items, quantity: number) => void;
   onBuyNow: (item: Items, quantity: number) => void;
-  currencySymbol: string;
   currencyRate: number;
   isLoggedIn: boolean;
 }
@@ -25,16 +25,16 @@ export function ItemCard({
   item,
   onAddToCart,
   onBuyNow,
-  currencySymbol,
+
   currencyRate,
   isLoggedIn,
 }: ItemCardProps) {
+  const selectedCurrency = useCurrencyStore((state) => state.currency);
+
   const [quantity, setQuantity] = useState(1);
 
   const incrementQuantity = () => setQuantity((prev) => prev + 1);
   const decrementQuantity = () => setQuantity((prev) => Math.max(1, prev - 1));
-
-  const formattedPrice = ((item.price / 100) * currencyRate).toFixed(2);
 
   return (
     <Card>
@@ -46,8 +46,10 @@ export function ItemCard({
           {item.description}
         </p>
         <p className="mt-2 text-2xl font-bold text-gray-800">
-          {currencySymbol}
-          {formattedPrice}
+          {new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: selectedCurrency,
+          }).format(item.price * currencyRate)}
         </p>
         <div className="mt-4 text-sm text-gray-500">
           <p>Created: {format(item.createdAt, "yyyy-MM-dd")}</p>

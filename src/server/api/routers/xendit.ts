@@ -5,6 +5,7 @@ import { v7 as uuidv7 } from "uuid";
 import { createCheckoutSchema } from "@/schema/checkout.schema";
 import { env } from "@/env";
 import { createOrder } from "@/server/queries/orders.queries";
+import { clearUserCart } from "@/server/queries/user-cart.queries";
 
 export const xenditRouter = createTRPCRouter({
   createInvoice: protectedProcedure
@@ -56,6 +57,8 @@ export const xenditRouter = createTRPCRouter({
         amount,
         invoice.status,
       );
+
+      await clearUserCart(user.id);
 
       return invoice;
     }),

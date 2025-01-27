@@ -10,6 +10,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Separator } from "@/components/ui/separator";
 import { globalErrorToast, globalSuccessToast } from "@/lib/toast";
 import { currencies } from "@/lib/constants";
@@ -52,6 +63,9 @@ export default function Cart() {
   const checkoutMutation = api.xendit.createInvoice.useMutation({
     onSuccess: async (data) => {
       globalSuccessToast("Proceeded to checkout successfully.");
+
+      await utils.cart.getCart.invalidate();
+
       window.open(data.invoiceUrl, "_blank")?.focus();
     },
     onError: (error) => {
@@ -68,6 +82,8 @@ export default function Cart() {
   };
 
   const handleCheckout = () => {
+    if (cartItems.length === 0) return;
+
     checkoutMutation.mutate({
       items: cartItems.map(({ items, quantity }) => ({
         name: items.name,
@@ -136,9 +152,32 @@ export default function Cart() {
               </div>
             </CardContent>
             <CardFooter>
-              <Button className="w-full" onClick={() => handleCheckout()}>
-                Proceed to Checkout
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button className="w-full" disabled={cartItems.length === 0}>
+                    {cartItems.length === 0
+                      ? "Cart is empty"
+                      : "Proceed to Checkout"}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      Are you absolutely sure?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. You will be charged
+                      immediately.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => handleCheckout()}>
+                      Continue
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </CardFooter>
           </Card>
         </div>
