@@ -2,7 +2,7 @@ import generateMetadata from "@/lib/generate-metadata";
 import RegisterForm from "./register-form";
 
 export const metadata = generateMetadata({
-  title: "Sign In",
+  title: "Sign Up",
 });
 
 export default async function Page() {
