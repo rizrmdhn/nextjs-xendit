@@ -1,6 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "../db";
 import { userCart } from "../db/schema";
+import { TRPCError } from "@trpc/server";
 
 export async function getUserCart(userId: string) {
   const data = await db.query.userCart.findMany({
@@ -62,7 +63,10 @@ export async function addItemToCart(
     .execute();
 
   if (!cartItem) {
-    throw new Error("Failed to add item to cart");
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Failed to add item to cart",
+    });
   }
 
   return cartItem;
@@ -76,7 +80,10 @@ export async function updateCartItemQuantity(
   const isExists = await getUserCartItems(userId, itemId);
 
   if (!isExists) {
-    throw new Error("Item not found in cart");
+    throw new TRPCError({
+      code: "NOT_FOUND",
+      message: "Item not found in cart",
+    });
   }
 
   const cartItem = await db
@@ -89,7 +96,10 @@ export async function updateCartItemQuantity(
     .execute();
 
   if (!cartItem) {
-    throw new Error("Failed to update cart item quantity");
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Failed to update item quantity",
+    });
   }
 
   return cartItem;
@@ -99,7 +109,10 @@ export async function removeItemFromCart(userId: string, itemId: string) {
   const isExists = await getUserCartItems(userId, itemId);
 
   if (!isExists) {
-    throw new Error("Item not found in cart");
+    throw new TRPCError({
+      code: "NOT_FOUND",
+      message: "Item not found in cart",
+    });
   }
 
   const cartItem = await db
@@ -109,7 +122,10 @@ export async function removeItemFromCart(userId: string, itemId: string) {
     .execute();
 
   if (!cartItem) {
-    throw new Error("Item not found in cart");
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Failed to remove item from cart",
+    });
   }
 
   return cartItem;

@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "../db";
 import { users } from "../db/schema";
+import { TRPCError } from "@trpc/server";
 
 export async function getUserByUsername(username: string) {
   const user = await db.query.users.findFirst({
@@ -21,7 +22,10 @@ export async function createUser(username: string, password: string) {
     .execute();
 
   if (!user) {
-    throw new Error("Failed to create user");
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Failed to create user",
+    });
   }
 
   return user;
