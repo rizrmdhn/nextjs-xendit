@@ -16,8 +16,6 @@ import { useCurrencyStore } from "@/stores/currency.stores";
 import { api } from "@/trpc/react";
 import type { InvoiceStatus } from "xendit-node/invoice/models";
 
-export const dynamic = "force-dynamic";
-
 export default function OrderDetail() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
