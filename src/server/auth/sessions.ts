@@ -3,19 +3,19 @@ import { cookies } from "next/headers";
 
 import type { SessionValidationResult } from "@/types/sessions.types";
 
-import { validateSessionToken } from "./utils";
+import { validateSessionsToken } from "../queries/sessions.queries";
 
 export const getCurrentSession = cache(
   async (): Promise<SessionValidationResult> => {
     const awaitedCookies = await cookies();
 
-    const token = awaitedCookies.get("token")?.value;
+    const token = awaitedCookies.get("session")?.value;
 
     if (!token) {
       return { session: null, user: null };
     }
 
-    const result = await validateSessionToken(token);
+    const result = await validateSessionsToken(token);
     return result;
   },
 );

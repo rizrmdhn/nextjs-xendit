@@ -3,9 +3,12 @@ import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { hash, verify } from "@node-rs/argon2";
 import { TRPCError } from "@trpc/server";
 import { createTokenCookie, deleteTokenCookie } from "@/server/auth/utils";
-import { encrypt } from "@/server/auth";
 import { createUser, getUserByUsername } from "@/server/queries/users.queries";
 import { registerSchema } from "@/schema/auth.schema";
+import {
+  createSessions,
+  invalidateSessions,
+} from "@/server/queries/sessions.queries";
 
 export const authRouter = createTRPCRouter({
   login: publicProcedure
@@ -32,29 +35,17 @@ export const authRouter = createTRPCRouter({
         });
       }
 
-      // Generate JWT
-      const token = await encrypt({
-        id: user.id,
-        username: user.username,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt,
-      });
+      const session = await createSessions(user.id);
 
-      void (await createTokenCookie(token));
+      void createTokenCookie(session.id, new Date(session.expiresAt));
 
-      return {
-        user: {
-          id: user.id,
-          username: user.username,
-          createdAt: user.createdAt,
-          updatedAt: user.updatedAt,
-        },
-        token,
-      };
+      return session;
     }),
 
-  logout: protectedProcedure.mutation(async () => {
-    void (await deleteTokenCookie());
+  logout: protectedProcedure.mutation(async ({ ctx: { session } }) => {
+    await invalidateSessions(session.id);
+
+    void deleteTokenCookie();
 
     return true;
   }),

@@ -9,7 +9,7 @@ export async function createTokenCookie(
   // 1 month expiration
   expiresAt: Date = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
 ): Promise<void> {
-  (await cookies()).set("token", token, {
+  (await cookies()).set("session", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
@@ -18,10 +18,10 @@ export async function createTokenCookie(
 }
 
 export async function deleteTokenCookie(): Promise<void> {
-  (await cookies()).delete("token");
+  (await cookies()).delete("session");
 }
 
-export async function validateSessionToken(
+export async function validateJWTToken(
   token: string,
 ): Promise<SessionValidationResult> {
   try {
