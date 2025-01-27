@@ -1,10 +1,21 @@
 import { db } from ".";
 import { seed } from "drizzle-seed";
-import * as schema from "./schema";
+import { items } from "./schema";
 
 async function main() {
   try {
-    await seed(db, schema);
+    await seed(db, {
+      items,
+    }).refine((f) => ({
+      items: {
+        columns: {
+          price: f.int({
+            minValue: 100,
+            maxValue: 1000,
+          }),
+        },
+      },
+    }));
 
     console.log("Seed complete");
     process.exit(0);

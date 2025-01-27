@@ -6,13 +6,7 @@ import { ItemCard } from "@/components/item-card";
 import type { Items } from "@/types/item.types";
 import { globalSuccessToast } from "@/lib/toast";
 import { api } from "@/trpc/react";
-
-const currencies = {
-  USD: { symbol: "$", rate: 1 },
-  EUR: { symbol: "€", rate: 0.92 },
-  GBP: { symbol: "£", rate: 0.79 },
-  JPY: { symbol: "¥", rate: 143.08 },
-};
+import { currencies } from "@/lib/constants";
 
 export default function Home() {
   const isLoggedIn = true;

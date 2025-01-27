@@ -16,15 +16,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-
-const currencies = [
-  { label: "USD", symbol: "$", rate: 1 },
-  { label: "EUR", symbol: "€", rate: 0.92 },
-  { label: "GBP", symbol: "£", rate: 0.79 },
-  { label: "JPY", symbol: "¥", rate: 143.08 },
-  { label: "CNY", symbol: "¥", rate: 6.47 },
-  { label: "IDR", symbol: "Rp", rate: 14152.5 },
-];
+import { currencies } from "@/lib/constants";
 
 export function CurrencySelector({
   selectedCurrency,
@@ -54,23 +46,23 @@ export function CurrencySelector({
           <CommandList>
             <CommandEmpty>No currency found.</CommandEmpty>
             <CommandGroup>
-              {currencies.map((currency) => (
+              {Object.keys(currencies).map((currencyCode) => (
                 <CommandItem
-                  key={currency.label}
+                  key={currencyCode}
                   onSelect={() => {
-                    onSelectCurrency(currency.label);
+                    onSelectCurrency(currencyCode);
                     setOpen(false);
                   }}
                 >
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      selectedCurrency === currency.label
+                      selectedCurrency === currencyCode
                         ? "opacity-100"
                         : "opacity-0",
                     )}
                   />
-                  {currency.label}
+                  {currencyCode}
                 </CommandItem>
               ))}
             </CommandGroup>
