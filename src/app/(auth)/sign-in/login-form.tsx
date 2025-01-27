@@ -37,7 +37,7 @@ export default function LoginForm() {
     onSuccess: () => {
       globalSuccessToast("Login success");
 
-      router.push(`/dashboard`);
+      router.push(`/`);
     },
     onError: (error) => {
       globalErrorToast(error.message);

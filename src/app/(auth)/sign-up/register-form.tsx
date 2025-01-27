@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { loginSchema } from "@/schema/auth.schema";
+import { registerSchema } from "@/schema/auth.schema";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
@@ -33,26 +33,26 @@ export default function RegisterForm() {
 
   const router = useRouter();
 
-  const { mutate, status } = api.auth.login.useMutation({
+  const { mutate, status } = api.auth.register.useMutation({
     onSuccess: () => {
-      globalSuccessToast("Login success");
+      globalSuccessToast("Register success");
 
-      router.push(`/dashboard`);
+      router.push(`/sign-in`);
     },
     onError: (error) => {
       globalErrorToast(error.message);
     },
   });
 
-  const form = useForm<z.infer<typeof loginSchema>>({
-    resolver: zodResolver(loginSchema),
+  const form = useForm<z.infer<typeof registerSchema>>({
+    resolver: zodResolver(registerSchema),
     defaultValues: {
       username: "",
       password: "",
     },
   });
 
-  function handleSubmit(data: z.infer<typeof loginSchema>) {
+  function handleSubmit(data: z.infer<typeof registerSchema>) {
     mutate(data);
   }
 
