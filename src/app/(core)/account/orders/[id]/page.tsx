@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Header } from "@/components/header";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,47 +12,31 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useCurrencyStore } from "@/stores/currency.stores";
-import { currencies } from "@/lib/constants";
+import { api } from "@/trpc/react";
+import type { InvoiceStatus } from "xendit-node/invoice/models";
 
-interface OrderItem {
-  name: string;
-  quantity: number;
-  price: number;
-}
-
-interface Order {
-  id: string;
-  date: string;
-  total: number;
-  status: "processing" | "shipped" | "delivered";
-  items: OrderItem[];
-}
-
-// In a real application, you would fetch this data based on the order ID
-const mockOrder: Order = {
-  id: "ORD-001",
-  date: "2023-06-15",
-  total: 12998,
-  status: "delivered",
-  items: [
-    { name: "Wireless Earbuds", quantity: 1, price: 9999 },
-    { name: "Phone Case", quantity: 1, price: 2999 },
-  ],
-};
-
-export default function OrderDetail({ params }: { params: { id: string } }) {
+export default function OrderDetail() {
+  const { id } = useParams<{ id: string }>();
   const router = useRouter();
+
+  const [invoice] = api.xendit.getDetailInvoice.useSuspenseQuery({
+    externalId: id,
+  });
 
   const selectedCurrency = useCurrencyStore((state) => state.currency);
 
-  const getStatusColor = (status: Order["status"]) => {
+  const getStatusColor = (status: InvoiceStatus) => {
     switch (status) {
-      case "processing":
-        return "bg-yellow-500";
-      case "shipped":
-        return "bg-blue-500";
-      case "delivered":
+      case "PAID":
         return "bg-green-500";
+      case "EXPIRED":
+        return "bg-red-500";
+      case "SETTLED":
+        return "bg-blue-500";
+      case "PENDING":
+        return "bg-yellow-500";
+      case "UNKNOWN_ENUM_VALUE":
+        return "bg-gray-500";
       default:
         return "bg-gray-500";
     }
@@ -65,35 +49,34 @@ export default function OrderDetail({ params }: { params: { id: string } }) {
         <Card>
           <CardHeader>
             <CardTitle className="text-2xl font-bold">
-              Order Details: {params.id}
+              Order Details: {invoice.id ?? invoice.externalId}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div>
                 <h3 className="font-semibold">Order Date:</h3>
-                <p>{new Date(mockOrder.date).toLocaleDateString()}</p>
+                <p>{new Date(invoice.created).toLocaleDateString()}</p>
               </div>
               <div>
                 <h3 className="font-semibold">Status:</h3>
                 <Badge
-                  className={`${getStatusColor(mockOrder.status)} text-white`}
+                  className={`${getStatusColor(invoice.status)} text-white`}
                 >
-                  {mockOrder.status.charAt(0).toUpperCase() +
-                    mockOrder.status.slice(1)}
+                  {invoice.status.charAt(0).toUpperCase() +
+                    invoice.status.slice(1)}
                 </Badge>
               </div>
               <div>
                 <h3 className="font-semibold">Items:</h3>
                 <ul className="list-inside list-disc">
-                  {mockOrder.items.map((item, index) => (
+                  {(invoice.items ?? []).map((item, index) => (
                     <li key={index}>
                       {item.name} x {item.quantity} -{" "}
-                      {currencies[selectedCurrency].symbol}
-                      {(
-                        ((item.price * item.quantity) / 100) *
-                        currencies[selectedCurrency].rate
-                      ).toFixed(2)}
+                      {new Intl.NumberFormat("en-US", {
+                        style: "currency",
+                        currency: selectedCurrency,
+                      }).format(item.price * item.quantity)}
                     </li>
                   ))}
                 </ul>
@@ -101,19 +84,33 @@ export default function OrderDetail({ params }: { params: { id: string } }) {
               <div>
                 <h3 className="font-semibold">Total:</h3>
                 <p>
-                  {currencies[selectedCurrency].symbol}
-                  {(
-                    (mockOrder.total / 100) *
-                    currencies[selectedCurrency].rate
-                  ).toFixed(2)}
+                  {new Intl.NumberFormat("en-US", {
+                    style: "currency",
+                    currency: selectedCurrency,
+                  }).format(
+                    (invoice.items ?? []).reduce(
+                      (acc, item) => acc + item.price * item.quantity,
+                      0,
+                    ),
+                  )}
                 </p>
               </div>
             </div>
           </CardContent>
-          <CardFooter>
+          <CardFooter className="gap-4">
             <Button onClick={() => router.push("/account/orders")}>
               Back to Orders
             </Button>
+            {invoice.status === "PENDING" && (
+              <Button
+                variant="outline"
+                onClick={() => {
+                  window.open(invoice.invoiceUrl, "_blank");
+                }}
+              >
+                Pay Now
+              </Button>
+            )}
           </CardFooter>
         </Card>
       </main>

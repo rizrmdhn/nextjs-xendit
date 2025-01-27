@@ -81,7 +81,7 @@ export default function OrderList() {
                     </TableCell>
                     <TableCell>
                       <Button asChild variant="outline" size="sm">
-                        <Link href={`/account/orders/${order.id}`}>
+                        <Link href={`/account/orders/${order.externalId}`}>
                           View Details
                         </Link>
                       </Button>

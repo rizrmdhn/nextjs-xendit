@@ -4,8 +4,12 @@ import type { CreateInvoiceRequest } from "xendit-node/invoice/models";
 import { v7 as uuidv7 } from "uuid";
 import { createCheckoutSchema } from "@/schema/checkout.schema";
 import { env } from "@/env";
-import { createOrder } from "@/server/queries/orders.queries";
+import {
+  createOrder,
+  getOrderByExternalId,
+} from "@/server/queries/orders.queries";
 import { clearUserCart } from "@/server/queries/user-cart.queries";
+import { z } from "zod";
 
 export const xenditRouter = createTRPCRouter({
   createInvoice: protectedProcedure
@@ -59,6 +63,22 @@ export const xenditRouter = createTRPCRouter({
       );
 
       await clearUserCart(user.id);
+
+      return invoice;
+    }),
+
+  getDetailInvoice: protectedProcedure
+    .input(
+      z.object({
+        externalId: z.string(),
+      }),
+    )
+    .query(async ({ input: { externalId } }) => {
+      const orders = await getOrderByExternalId(externalId);
+
+      const invoice = await Invoice.getInvoiceById({
+        invoiceId: orders.invoiceId,
+      });
 
       return invoice;
     }),
