@@ -1,5 +1,5 @@
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { Invoice } from "@/server/payment-gateway";
+import { getXenditService } from "@/server/payment-gateway";
 import type { CreateInvoiceRequest } from "xendit-node/invoice/models";
 import { v7 as uuidv7 } from "uuid";
 import { createCheckoutSchema } from "@/schema/checkout.schema";
@@ -15,6 +15,8 @@ export const xenditRouter = createTRPCRouter({
   createInvoice: protectedProcedure
     .input(createCheckoutSchema)
     .mutation(async ({ ctx: { user }, input }) => {
+      const xenditService = getXenditService();
+
       let amount = 0;
       const externalId = `invoice-${uuidv7()}`;
 
@@ -50,9 +52,7 @@ export const xenditRouter = createTRPCRouter({
         successRedirectUrl: `${env.SUCCESS_REDIRECT_URL}?externalId=${externalId}`,
       };
 
-      const invoice = await Invoice.createInvoice({
-        data,
-      });
+      const invoice = await xenditService.createInvoice(data);
 
       await createOrder(
         user.id,
@@ -74,11 +74,11 @@ export const xenditRouter = createTRPCRouter({
       }),
     )
     .query(async ({ input: { externalId } }) => {
+      const xenditService = getXenditService();
+
       const orders = await getOrderByExternalId(externalId);
 
-      const invoice = await Invoice.getInvoiceById({
-        invoiceId: orders.invoiceId,
-      });
+      const invoice = await xenditService.getInvoice(orders.invoiceId);
 
       return invoice;
     }),
