@@ -28,7 +28,7 @@ import { api } from "@/trpc/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-export default function LoginForm() {
+export default function RegisterForm() {
   const [type, setType] = useState<"text" | "password">("password");
 
   const router = useRouter();
@@ -59,9 +59,9 @@ export default function LoginForm() {
   return (
     <Card className="mx-auto max-w-sm">
       <CardHeader>
-        <CardTitle className="text-2xl">Login</CardTitle>
+        <CardTitle className="text-2xl">Register</CardTitle>
         <CardDescription>
-          Enter your username below to login to your account
+          Enter your details to create an account
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -126,14 +126,14 @@ export default function LoginForm() {
               {status === "pending" ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
               ) : null}
-              Sign In
+              Sign Up
             </Button>
           </form>
         </Form>
         <p className="mt-4 text-center text-sm text-gray-600">
-          Don&apos;t have an account?{" "}
-          <Link href="/sign-up" className="hover:underline">
-            Sign up
+          Already have an account?{" "}
+          <Link href="/sign-in" className="hover:underline">
+            Sign In
           </Link>
         </p>
       </CardContent>
