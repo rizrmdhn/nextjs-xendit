@@ -5,6 +5,7 @@ interface ShopLayoutProps {
 }
 
 export default function ShopLayout({ children }: ShopLayoutProps) {
+  void api.item.getItems.prefetch();
   void api.cart.cartItemCounter.prefetch();
 
   return <HydrateClient>{children}</HydrateClient>;

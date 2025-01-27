@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 
 import type { SessionValidationResult } from "@/types/sessions.types";
 
-import { validateSessionsToken } from "../queries/sessions.queries";
+import { validateSessionsToken } from "@/server/queries/sessions.queries";
 
 export const getCurrentSession = cache(
   async (): Promise<SessionValidationResult> => {
