@@ -3,6 +3,7 @@ import { itemsRouter } from "./routers/item";
 import { authRouter } from "./routers/auth";
 import { cartRouter } from "./routers/cart";
 import { xenditRouter } from "./routers/xendit";
+import { ordersRouter } from "./routers/orders";
 
 /**
  * This is the primary router for your server.
@@ -13,6 +14,7 @@ export const appRouter = createTRPCRouter({
   auth: authRouter,
   item: itemsRouter,
   cart: cartRouter,
+  orders: ordersRouter,
   xendit: xenditRouter,
 });
 

@@ -16,15 +16,14 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { currencies } from "@/lib/constants";
+import { currencies, type Currency } from "@/lib/constants";
+import { useCurrencyStore } from "@/stores/currency.stores";
 
-export function CurrencySelector({
-  selectedCurrency,
-  onSelectCurrency,
-}: {
-  selectedCurrency: string;
-  onSelectCurrency: (currency: string) => void;
-}) {
+export function CurrencySelector() {
+  const selectedCurrency = useCurrencyStore((state) => state.currency);
+  const setCurrency = useCurrencyStore((state) => state.setCurrency);
+  const setRate = useCurrencyStore((state) => state.setRate);
+
   const [open, setOpen] = React.useState(false);
 
   return (
@@ -46,11 +45,12 @@ export function CurrencySelector({
           <CommandList>
             <CommandEmpty>No currency found.</CommandEmpty>
             <CommandGroup>
-              {Object.keys(currencies).map((currencyCode) => (
+              {Object.entries(currencies).map(([currencyCode, { rate }]) => (
                 <CommandItem
                   key={currencyCode}
                   onSelect={() => {
-                    onSelectCurrency(currencyCode);
+                    setCurrency(currencyCode as Currency);
+                    setRate(rate);
                     setOpen(false);
                   }}
                 >

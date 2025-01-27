@@ -1,25 +1,62 @@
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { Invoice } from "@/server/payment-gateway";
 import type { CreateInvoiceRequest } from "xendit-node/invoice/models";
+import { v7 as uuidv7 } from "uuid";
+import { createCheckoutSchema } from "@/schema/checkout.schema";
+import { env } from "@/env";
+import { createOrder } from "@/server/queries/orders.queries";
 
 export const xenditRouter = createTRPCRouter({
-  createInvoice: protectedProcedure.mutation(async ({ ctx: { user } }) => {
-    const data: CreateInvoiceRequest = {
-      amount: 10000,
-      invoiceDuration: "172800",
-      externalId: "test1234",
-      description: "Test Invoice",
-      currency: "IDR",
-      reminderTime: 1,
-      customer: {
-        id: user.id,
-        surname: user.username,
-        givenNames: user.username,
-      },
-    };
+  createInvoice: protectedProcedure
+    .input(createCheckoutSchema)
+    .mutation(async ({ ctx: { user }, input }) => {
+      let amount = 0;
+      const externalId = `invoice-${uuidv7()}`;
 
-    return await Invoice.createInvoice({
-      data,
-    });
-  }),
+      if (input.currency !== "USD") {
+        amount = input.items.reduce(
+          (acc, item) => acc + item.price * item.quantity,
+          0,
+        );
+
+        amount = amount * input.currencyRate;
+      }
+
+      const data: CreateInvoiceRequest = {
+        amount: amount,
+        invoiceDuration: "172800",
+        externalId,
+        description: input.description,
+        currency: input.currency,
+        reminderTime: 1,
+        customer: {
+          id: user.id,
+          surname: user.username,
+          givenNames: user.username,
+        },
+        items: input.items.map((item) => ({
+          name: item.name,
+          price:
+            input.currency === "USD"
+              ? item.price
+              : item.price * input.currencyRate,
+          quantity: item.quantity,
+        })),
+        successRedirectUrl: `${env.SUCCESS_REDIRECT_URL}?externalId=${externalId}`,
+      };
+
+      const invoice = await Invoice.createInvoice({
+        data,
+      });
+
+      await createOrder(
+        user.id,
+        invoice.id ?? "",
+        invoice.externalId,
+        amount,
+        invoice.status,
+      );
+
+      return invoice;
+    }),
 });

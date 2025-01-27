@@ -5,3 +5,5 @@ export const currencies = {
   JPY: { symbol: "¥", rate: 143.08 },
   IDR: { symbol: "Rp", rate: 14200 },
 };
+
+export type Currency = keyof typeof currencies;

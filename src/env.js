@@ -13,6 +13,7 @@ export const env = createEnv({
       .default("development"),
     JWT_SECRET_KEY: z.string(),
     XENDIT_SECRET_KEY: z.string(),
+    SUCCESS_REDIRECT_URL: z.string().url(),
   },
 
   /**
@@ -33,6 +34,7 @@ export const env = createEnv({
     NODE_ENV: process.env.NODE_ENV,
     JWT_SECRET_KEY: process.env.JWT_SECRET_KEY,
     XENDIT_SECRET_KEY: process.env.XENDIT_SECRET_KEY,
+    SUCCESS_REDIRECT_URL: process.env.SUCCESS_REDIRECT_URL,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
   /**

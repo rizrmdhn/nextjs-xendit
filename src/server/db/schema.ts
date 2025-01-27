@@ -150,13 +150,10 @@ export const orders = createTable(
         onDelete: "cascade",
       })
       .notNull(),
-    itemId: uuid("item_id")
-      .references(() => items.id, {
-        onDelete: "cascade",
-      })
-      .notNull(),
-    quantity: integer("quantity").notNull(),
-    price: integer("price").notNull(),
+    total: integer("total").notNull(),
+    invoiceId: varchar("invoice", { length: 50 }).notNull(),
+    externalId: varchar("external_id", { length: 50 }).notNull(),
+    status: varchar("status", { length: 50 }).notNull(),
     createdAt: timestamp("created_at", {
       withTimezone: true,
       mode: "string",

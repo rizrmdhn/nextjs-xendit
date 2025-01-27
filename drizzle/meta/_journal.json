@@ -22,6 +22,27 @@
       "when": 1737942484355,
       "tag": "0002_wide_goblin_queen",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1737963550208,
+      "tag": "0003_fearless_ezekiel_stane",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1737965928814,
+      "tag": "0004_graceful_outlaw_kid",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1737966100142,
+      "tag": "0005_silky_rogue",
+      "breakpoints": true
     }
   ]
 }

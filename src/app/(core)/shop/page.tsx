@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
 import { Header } from "@/components/header";
 import { ItemCard } from "@/components/item-card";
 import type { Items } from "@/types/item.types";
 import { globalErrorToast, globalSuccessToast } from "@/lib/toast";
 import { api } from "@/trpc/react";
 import { currencies } from "@/lib/constants";
+import { useCurrencyStore } from "@/stores/currency.stores";
 
 export default function Home() {
   const utils = api.useUtils();
@@ -15,10 +15,7 @@ export default function Home() {
 
   const [items] = api.item.getItems.useSuspenseQuery();
 
-  const [cartItems] = api.cart.cartItemCounter.useSuspenseQuery();
-
-  const [selectedCurrency, setSelectedCurrency] =
-    useState<keyof typeof currencies>("USD");
+  const selectedCurrency = useCurrencyStore((state) => state.currency);
 
   const addToCartMutation = api.cart.addToCart.useMutation({
     onSuccess: async (_data, variables) => {
@@ -51,14 +48,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Header
-        isLoggedIn={!!me}
-        cartItemCount={cartItems}
-        selectedCurrency={selectedCurrency}
-        onSelectCurrency={(currency) =>
-          setSelectedCurrency(currency as keyof typeof currencies)
-        }
-      />
+      <Header />
       <main className="container mx-auto px-4 py-8">
         <h1 className="mb-6 text-3xl font-bold text-gray-800">Our Products</h1>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">

@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { Header } from "@/components/header";
 import { CartItem } from "@/components/cart-item";
 import { Button } from "@/components/ui/button";
@@ -15,6 +14,7 @@ import { Separator } from "@/components/ui/separator";
 import { globalErrorToast, globalSuccessToast } from "@/lib/toast";
 import { currencies } from "@/lib/constants";
 import { api } from "@/trpc/react";
+import { useCurrencyStore } from "@/stores/currency.stores";
 
 export default function Cart() {
   const utils = api.useUtils();
@@ -23,8 +23,9 @@ export default function Cart() {
 
   const [cartTotal] = api.cart.cartTotal.useSuspenseQuery();
 
-  const [selectedCurrency, setSelectedCurrency] =
-    useState<keyof typeof currencies>("USD");
+  const selectedCurrency = useCurrencyStore((state) => state.currency);
+
+  const currencyRate = useCurrencyStore((state) => state.rate);
 
   const removeItemMutation = api.cart.removeFromCart.useMutation({
     onSuccess: async () => {
@@ -67,19 +68,23 @@ export default function Cart() {
   };
 
   const handleCheckout = () => {
-    checkoutMutation.mutate();
+    checkoutMutation.mutate({
+      items: cartItems.map(({ items, quantity }) => ({
+        name: items.name,
+        price: items.price,
+        quantity,
+      })),
+      currency: selectedCurrency,
+      description: "Checkout",
+      invoiceDuration: "172800",
+      reminderTime: 1,
+      currencyRate: currencyRate,
+    });
   };
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Header
-        isLoggedIn={true}
-        cartItemCount={cartItems.reduce((sum, item) => sum + item.quantity, 0)}
-        selectedCurrency={selectedCurrency}
-        onSelectCurrency={(currency) =>
-          setSelectedCurrency(currency as keyof typeof currencies)
-        }
-      />
+      <Header />
       <main className="container mx-auto px-4 py-8">
         <h1 className="mb-6 text-3xl font-bold text-gray-800">Your Cart</h1>
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
