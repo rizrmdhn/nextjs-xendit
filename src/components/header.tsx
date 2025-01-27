@@ -8,8 +8,8 @@ import AccountButton from "./account-button";
 import { api } from "@/trpc/react";
 
 export function Header() {
-  const [me] = api.auth.me.useSuspenseQuery();
-  const [cartItems] = api.cart.cartItemCounter.useSuspenseQuery();
+  const { data: me } = api.auth.me.useQuery();
+  const { data: cartItems } = api.cart.cartItemCounter.useQuery();
 
   return (
     <header className="bg-white shadow-md">
@@ -24,9 +24,9 @@ export function Header() {
             className="relative text-gray-600 hover:text-gray-800"
           >
             <ShoppingCart className="h-6 w-6" />
-            {cartItems > 0 && (
+            {(cartItems ?? 0) > 0 && (
               <Badge variant="destructive" className="absolute -right-2 -top-2">
-                {cartItems}
+                {cartItems ?? 0}
               </Badge>
             )}
           </Link>

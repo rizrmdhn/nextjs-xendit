@@ -5,6 +5,12 @@
 import "./src/env.js";
 
 /** @type {import("next").NextConfig} */
-const config = {};
+const config = {
+  experimental: {
+    serverComponentsExternalPackages: ["@node-rs/argon2", "xendit-node"],
+  },
+  output: "standalone",
+  reactStrictMode: true,
+};
 
 export default config;

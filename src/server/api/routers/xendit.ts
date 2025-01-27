@@ -1,5 +1,5 @@
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { getXenditService } from "@/server/payment-gateway";
+import { getInvoiceClient } from "@/server/payment-gateway";
 import type { CreateInvoiceRequest } from "xendit-node/invoice/models";
 import { v7 as uuidv7 } from "uuid";
 import { createCheckoutSchema } from "@/schema/checkout.schema";
@@ -10,12 +10,20 @@ import {
 } from "@/server/queries/orders.queries";
 import { clearUserCart } from "@/server/queries/user-cart.queries";
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 
 export const xenditRouter = createTRPCRouter({
   createInvoice: protectedProcedure
     .input(createCheckoutSchema)
     .mutation(async ({ ctx: { user }, input }) => {
-      const xenditService = getXenditService();
+      const Invoice = getInvoiceClient();
+
+      if (!Invoice) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Payment service not initialized",
+        });
+      }
 
       let amount = 0;
       const externalId = `invoice-${uuidv7()}`;
@@ -52,7 +60,7 @@ export const xenditRouter = createTRPCRouter({
         successRedirectUrl: `${env.SUCCESS_REDIRECT_URL}?externalId=${externalId}`,
       };
 
-      const invoice = await xenditService.createInvoice(data);
+      const invoice = await Invoice.createInvoice({ data });
 
       await createOrder(
         user.id,
@@ -74,11 +82,20 @@ export const xenditRouter = createTRPCRouter({
       }),
     )
     .query(async ({ input: { externalId } }) => {
-      const xenditService = getXenditService();
+      const Invoice = getInvoiceClient();
+
+      if (!Invoice) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Payment service not initialized",
+        });
+      }
 
       const orders = await getOrderByExternalId(externalId);
 
-      const invoice = await xenditService.getInvoice(orders.invoiceId);
+      const invoice = await Invoice.getInvoiceById({
+        invoiceId: orders.invoiceId,
+      });
 
       return invoice;
     }),

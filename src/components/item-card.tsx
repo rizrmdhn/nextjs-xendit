@@ -12,23 +12,23 @@ import { Plus, Minus, ShoppingCart } from "lucide-react";
 import type { Items } from "@/types/item.types";
 import { format } from "date-fns";
 import { useCurrencyStore } from "@/stores/currency.stores";
+import { api } from "@/trpc/react";
 
 interface ItemCardProps {
   item: Items;
   onAddToCart: (item: Items, quantity: number) => void;
   onBuyNow: (item: Items, quantity: number) => void;
   currencyRate: number;
-  isLoggedIn: boolean;
 }
 
 export function ItemCard({
   item,
   onAddToCart,
   onBuyNow,
-
   currencyRate,
-  isLoggedIn,
 }: ItemCardProps) {
+  const { data: me } = api.auth.me.useQuery();
+
   const selectedCurrency = useCurrencyStore((state) => state.currency);
 
   const [quantity, setQuantity] = useState(1);
@@ -57,7 +57,7 @@ export function ItemCard({
             <p>Updated: {format(item.updatedAt, "yyyy-MM-dd")}</p>
           )}
         </div>
-        {isLoggedIn && (
+        {!!me && (
           <div className="mt-4 flex items-center">
             <Button variant="outline" size="icon" onClick={decrementQuantity}>
               <Minus className="h-4 w-4" />
@@ -77,7 +77,7 @@ export function ItemCard({
           </div>
         )}
       </CardContent>
-      {isLoggedIn && (
+      {!!me && (
         <CardFooter className="flex justify-between">
           <Button onClick={() => onAddToCart(item, quantity)} variant="outline">
             <ShoppingCart className="mr-2 h-4 w-4" /> Add to Cart

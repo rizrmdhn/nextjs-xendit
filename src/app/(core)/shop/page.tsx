@@ -11,8 +11,6 @@ import { useCurrencyStore } from "@/stores/currency.stores";
 export default function Home() {
   const utils = api.useUtils();
 
-  const [me] = api.auth.me.useSuspenseQuery();
-
   const [items] = api.item.getItems.useSuspenseQuery();
 
   const selectedCurrency = useCurrencyStore((state) => state.currency);
@@ -64,7 +62,6 @@ export default function Home() {
                 onAddToCart={handleAddToCart}
                 onBuyNow={handleBuyNow}
                 currencyRate={currencies[selectedCurrency].rate}
-                isLoggedIn={!!me}
               />
             ))
           )}

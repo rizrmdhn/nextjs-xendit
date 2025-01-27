@@ -41,9 +41,9 @@ export default function AccountButton() {
       <DropdownMenuContent>
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        {/* <DropdownMenuItem>
           <Link href="/account/profile">Profile</Link>
-        </DropdownMenuItem>
+        </DropdownMenuItem> */}
         <DropdownMenuItem>
           <Link href="/account/orders">Orders</Link>
         </DropdownMenuItem>
