@@ -9,7 +9,7 @@ import { api } from "@/trpc/react";
 import { currencies } from "@/lib/constants";
 
 export default function Home() {
-  const isLoggedIn = true;
+  const [me] = api.auth.me.useSuspenseQuery();
 
   const [items] = api.item.getItems.useSuspenseQuery();
 
@@ -45,7 +45,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-100">
       <Header
-        isLoggedIn={isLoggedIn}
+        isLoggedIn={!!me}
         cartItemCount={cartItems.reduce((sum, item) => sum + item.quantity, 0)}
         selectedCurrency={selectedCurrency}
         onSelectCurrency={(currency) =>
@@ -68,7 +68,7 @@ export default function Home() {
                 onBuyNow={handleBuyNow}
                 currencySymbol={currencies[selectedCurrency].symbol}
                 currencyRate={currencies[selectedCurrency].rate}
-                isLoggedIn={isLoggedIn}
+                isLoggedIn={!!me}
               />
             ))
           )}
