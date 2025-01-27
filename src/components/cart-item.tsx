@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useCurrencyStore } from "@/stores/currency.stores";
 import type { Items } from "@/types/item.types";
 import { Trash2 } from "lucide-react";
 
@@ -20,10 +21,7 @@ export function CartItem({
   onUpdateQuantity,
   onRemove,
 }: CartItemProps) {
-  const formattedPrice = ((item.price / 100) * currencyRate).toFixed(2);
-  const totalPrice = (((item.price * quantity) / 100) * currencyRate).toFixed(
-    2,
-  );
+  const selectedCurrency = useCurrencyStore((state) => state.currency);
 
   return (
     <div className="flex items-center justify-between border-b py-4">
@@ -32,7 +30,11 @@ export function CartItem({
           <h3 className="font-semibold">{item.name}</h3>
           <p className="text-sm text-gray-500">
             {currencySymbol}
-            {formattedPrice} each
+            {new Intl.NumberFormat("en-US", {
+              style: "currency",
+              currency: selectedCurrency,
+            }).format(item.price * currencyRate)}{" "}
+            each
           </p>
         </div>
       </div>
@@ -50,8 +52,10 @@ export function CartItem({
           className="w-16 text-center"
         />
         <p className="font-semibold">
-          {currencySymbol}
-          {totalPrice}
+          {new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: selectedCurrency,
+          }).format(item.price * quantity * currencyRate)}
         </p>
         <Button variant="ghost" size="icon" onClick={() => onRemove(item.id)}>
           <Trash2 className="h-4 w-4" />

@@ -134,8 +134,10 @@ export default function Cart() {
               <div className="flex justify-between py-2">
                 <span>Subtotal</span>
                 <span>
-                  {currencies[selectedCurrency].symbol}
-                  {cartTotal * currencies[selectedCurrency].rate}
+                  {new Intl.NumberFormat("en-US", {
+                    style: "currency",
+                    currency: selectedCurrency,
+                  }).format(cartTotal * currencies[selectedCurrency].rate)}
                 </span>
               </div>
               <div className="flex justify-between py-2">
@@ -146,8 +148,10 @@ export default function Cart() {
               <div className="flex justify-between py-2 font-semibold">
                 <span>Total</span>
                 <span>
-                  {currencies[selectedCurrency].symbol}
-                  {cartTotal * currencies[selectedCurrency].rate}
+                  {new Intl.NumberFormat("en-US", {
+                    style: "currency",
+                    currency: selectedCurrency,
+                  }).format(cartTotal * currencies[selectedCurrency].rate)}
                 </span>
               </div>
             </CardContent>
