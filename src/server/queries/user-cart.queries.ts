@@ -40,7 +40,10 @@ export async function getUserCartTotal(userId: string) {
     },
   });
 
-  return data.reduce((acc, item) => acc + item.items.price, 0);
+  return data.reduce(
+    (acc, item) => acc + item.quantity * (item.items?.price ?? 0),
+    0,
+  );
 }
 
 export async function addItemToCart(
@@ -60,6 +63,33 @@ export async function addItemToCart(
 
   if (!cartItem) {
     throw new Error("Failed to add item to cart");
+  }
+
+  return cartItem;
+}
+
+export async function updateCartItemQuantity(
+  userId: string,
+  itemId: string,
+  qty: number,
+) {
+  const isExists = await getUserCartItems(userId, itemId);
+
+  if (!isExists) {
+    throw new Error("Item not found in cart");
+  }
+
+  const cartItem = await db
+    .update(userCart)
+    .set({
+      quantity: qty,
+    })
+    .where(and(eq(userCart.userId, userId), eq(userCart.itemId, itemId)))
+    .returning()
+    .execute();
+
+  if (!cartItem) {
+    throw new Error("Failed to update cart item quantity");
   }
 
   return cartItem;

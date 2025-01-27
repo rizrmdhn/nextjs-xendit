@@ -15,7 +15,7 @@ export default function Home() {
 
   const [items] = api.item.getItems.useSuspenseQuery();
 
-  const [cartItems] = api.cart.getCart.useSuspenseQuery();
+  const [cartItems] = api.cart.cartItemCounter.useSuspenseQuery();
 
   const [selectedCurrency, setSelectedCurrency] =
     useState<keyof typeof currencies>("USD");
@@ -26,7 +26,7 @@ export default function Home() {
         `Added ${variables.quantity} ${variables.name} to the cart.`,
       );
 
-      await utils.cart.getCart.invalidate();
+      await utils.cart.cartItemCounter.invalidate();
     },
     onError: (error) => {
       globalErrorToast(error.message);
@@ -53,7 +53,7 @@ export default function Home() {
     <div className="min-h-screen bg-gray-100">
       <Header
         isLoggedIn={!!me}
-        cartItemCount={cartItems.reduce((sum, item) => sum + item.quantity, 0)}
+        cartItemCount={cartItems}
         selectedCurrency={selectedCurrency}
         onSelectCurrency={(currency) =>
           setSelectedCurrency(currency as keyof typeof currencies)

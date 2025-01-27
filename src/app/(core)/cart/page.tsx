@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Header } from "@/components/header";
 import { CartItem } from "@/components/cart-item";
 import { Button } from "@/components/ui/button";
@@ -12,77 +12,49 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import type { Items } from "@/types/item.types";
-import { globalSuccessToast } from "@/lib/toast";
-
-const currencies = {
-  USD: { symbol: "$", rate: 1 },
-  EUR: { symbol: "€", rate: 0.92 },
-  GBP: { symbol: "£", rate: 0.79 },
-  JPY: { symbol: "¥", rate: 143.08 },
-};
+import { globalErrorToast, globalSuccessToast } from "@/lib/toast";
+import { currencies } from "@/lib/constants";
+import { api } from "@/trpc/react";
 
 export default function Cart() {
-  const [cartItems, setCartItems] = useState<
-    { item: Items; quantity: number }[]
-  >([]);
+  const utils = api.useUtils();
+
+  const [cartItems] = api.cart.getCart.useSuspenseQuery();
+
+  const [cartTotal] = api.cart.cartTotal.useSuspenseQuery();
+
   const [selectedCurrency, setSelectedCurrency] =
     useState<keyof typeof currencies>("USD");
 
-  // In a real app, you'd fetch the cart items from an API or local storage
-  useEffect(() => {
-    // Simulating fetched cart items
-    setCartItems([
-      {
-        item: {
-          id: "1",
-          name: "Wireless Earbuds",
-          description: "High-quality wireless earbuds",
-          price: 9999,
-          createdAt: "",
-          updatedAt: "",
-        },
-        quantity: 2,
-      },
-      {
-        item: {
-          id: "2",
-          name: "Smart Watch",
-          description: "Feature-packed smartwatch",
-          price: 19999,
-          createdAt: "",
-          updatedAt: "",
-        },
-        quantity: 1,
-      },
-    ]);
-  }, []);
+  const removeItemMutation = api.cart.removeFromCart.useMutation({
+    onSuccess: async () => {
+      globalSuccessToast("Item removed from cart.");
+      await utils.cart.getCart.invalidate();
+      await utils.cart.cartTotal.invalidate();
+    },
+    onError: (error) => {
+      globalErrorToast(error.message);
+    },
+  });
+
+  const updateItemQuantityMutation = api.cart.updateItemQuantity.useMutation({
+    onSuccess: async () => {
+      globalSuccessToast("Item quantity updated.");
+      await utils.cart.getCart.invalidate();
+      await utils.cart.cartTotal.invalidate();
+    },
+    onError: (error) => {
+      globalErrorToast(error.message);
+    },
+  });
 
   const handleUpdateQuantity = (id: string, newQuantity: number) => {
-    setCartItems((prevItems) =>
-      prevItems.map((cartItem) =>
-        cartItem.item.id === id
-          ? { ...cartItem, quantity: newQuantity }
-          : cartItem,
-      ),
-    );
+    updateItemQuantityMutation.mutate({ itemId: id, quantity: newQuantity });
   };
 
   const handleRemoveItem = (id: string) => {
-    setCartItems((prevItems) =>
-      prevItems.filter((cartItem) => cartItem.item.id !== id),
-    );
-    globalSuccessToast("Item removed from cart.");
+    removeItemMutation.mutate({ itemId: id });
   };
-
-  const totalPrice = cartItems.reduce(
-    (sum, { item, quantity }) => sum + item.price * quantity,
-    0,
-  );
-  const formattedTotalPrice = (
-    (totalPrice / 100) *
-    currencies[selectedCurrency].rate
-  ).toFixed(2);
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -105,10 +77,10 @@ export default function Cart() {
               {cartItems.length === 0 ? (
                 <p>Your cart is empty.</p>
               ) : (
-                cartItems.map(({ item, quantity }) => (
+                cartItems.map(({ items, quantity }) => (
                   <CartItem
-                    key={item.id}
-                    item={item}
+                    key={items.id}
+                    item={items}
                     quantity={quantity}
                     currencySymbol={currencies[selectedCurrency].symbol}
                     currencyRate={currencies[selectedCurrency].rate}
@@ -128,7 +100,7 @@ export default function Cart() {
                 <span>Subtotal</span>
                 <span>
                   {currencies[selectedCurrency].symbol}
-                  {formattedTotalPrice}
+                  {cartTotal * currencies[selectedCurrency].rate}
                 </span>
               </div>
               <div className="flex justify-between py-2">
@@ -140,7 +112,7 @@ export default function Cart() {
                 <span>Total</span>
                 <span>
                   {currencies[selectedCurrency].symbol}
-                  {formattedTotalPrice}
+                  {cartTotal * currencies[selectedCurrency].rate}
                 </span>
               </div>
             </CardContent>

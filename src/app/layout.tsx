@@ -18,7 +18,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   void api.item.getItems.prefetch();
   void api.auth.me.prefetch();
-  void api.cart.getCart.prefetch();
+  void api.cart.cartItemCounter.prefetch();
   return (
     <html lang="en" className={`${GeistSans.variable}`}>
       <body>

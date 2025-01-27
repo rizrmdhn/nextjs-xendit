@@ -28,7 +28,6 @@ export function CartItem({
   return (
     <div className="flex items-center justify-between border-b py-4">
       <div className="flex items-center space-x-4">
-        <div className="h-16 w-16 rounded-md bg-gray-200"></div>
         <div>
           <h3 className="font-semibold">{item.name}</h3>
           <p className="text-sm text-gray-500">

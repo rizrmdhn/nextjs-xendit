@@ -4,7 +4,10 @@ import { addToCartSchema } from "@/schema/cart.schema";
 import {
   addItemToCart,
   getUserCart,
+  getUserCartCount,
+  getUserCartTotal,
   removeItemFromCart,
+  updateCartItemQuantity,
 } from "@/server/queries/user-cart.queries";
 
 export const cartRouter = createTRPCRouter({
@@ -13,6 +16,14 @@ export const cartRouter = createTRPCRouter({
     .mutation(async ({ ctx: { user }, input: { itemId, quantity } }) => {
       return await addItemToCart(user.id, itemId, quantity);
     }),
+
+  cartItemCounter: protectedProcedure.query(async ({ ctx: { user } }) => {
+    return await getUserCartCount(user.id);
+  }),
+
+  cartTotal: protectedProcedure.query(async ({ ctx: { user } }) => {
+    return await getUserCartTotal(user.id);
+  }),
 
   removeFromCart: protectedProcedure
     .input(
@@ -23,6 +34,17 @@ export const cartRouter = createTRPCRouter({
     .mutation(async ({ ctx: { user }, input: { itemId } }) => {
       // Remove item from cart
       return await removeItemFromCart(user.id, itemId);
+    }),
+
+  updateItemQuantity: protectedProcedure
+    .input(
+      z.object({
+        itemId: z.string(),
+        quantity: z.number(),
+      }),
+    )
+    .mutation(async ({ ctx: { user }, input: { itemId, quantity } }) => {
+      return await updateCartItemQuantity(user.id, itemId, quantity);
     }),
 
   getCart: protectedProcedure.query(async ({ ctx: { user } }) => {
