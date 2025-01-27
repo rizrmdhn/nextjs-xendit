@@ -4,11 +4,13 @@
 import { sql } from "drizzle-orm";
 import {
   index,
-  integer,
   pgTableCreator,
   timestamp,
+  unique,
+  uuid,
   varchar,
 } from "drizzle-orm/pg-core";
+import { v7 as uuidv7 } from "uuid";
 
 /**
  * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
@@ -16,21 +18,62 @@ import {
  *
  * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
  */
-export const createTable = pgTableCreator((name) => `xendit-integration_${name}`);
+export const createTable = pgTableCreator((name) => `${name}`);
 
-export const posts = createTable(
-  "post",
+export const users = createTable(
+  "users",
   {
-    id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
-    name: varchar("name", { length: 256 }),
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .default(sql`CURRENT_TIMESTAMP`)
+    id: uuid("id")
+      .primaryKey()
+      .notNull()
+      .$default(() => uuidv7()),
+    username: varchar("username", { length: 50 }).notNull(),
+    password: varchar("password", { length: 150 }).notNull(),
+    createdAt: timestamp("created_at", {
+      withTimezone: true,
+      mode: "string",
+    })
+      .$default(() => sql`CURRENT_TIMESTAMP`)
       .notNull(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
-      () => new Date()
-    ),
+    updatedAt: timestamp("updated_at", {
+      withTimezone: true,
+      mode: "string",
+    }),
   },
-  (example) => ({
-    nameIndex: index("name_idx").on(example.name),
-  })
+  (table) => [
+    unique("username_unique").on(table.username),
+    index("username_idx").using("btree", table.username),
+    index("user_idx").using("btree", table.id),
+  ],
+);
+
+export const sessions = createTable(
+  "sessions",
+  {
+    id: uuid("id")
+      .primaryKey()
+      .notNull()
+      .$default(() => uuidv7()),
+    userId: uuid("user_id")
+      .references(() => users.id, {
+        onDelete: "cascade",
+      })
+      .notNull(),
+    expiresAt: timestamp("expires_at", {
+      withTimezone: true,
+      mode: "date",
+    }).notNull(),
+    createdAt: timestamp("created_at", {
+      withTimezone: true,
+      mode: "string",
+    })
+      .defaultNow()
+      .notNull(),
+  },
+  (session) => {
+    return [
+      index("session_id_idx").on(session.id),
+      index("user_id_idx").on(session.userId),
+    ];
+  },
 );

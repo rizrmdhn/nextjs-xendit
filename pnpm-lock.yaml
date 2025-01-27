@@ -53,6 +53,9 @@ importers:
       superjson:
         specifier: ^2.2.1
         version: 2.2.2
+      uuid:
+        specifier: ^11.0.5
+        version: 11.0.5
       zod:
         specifier: ^3.23.3
         version: 3.24.1
@@ -99,6 +102,9 @@ importers:
       tailwindcss:
         specifier: ^3.4.3
         version: 3.4.17
+      type-fest:
+        specifier: ^4.33.0
+        version: 4.33.0
       typescript:
         specifier: ^5.5.3
         version: 5.7.3
@@ -2323,6 +2329,10 @@ packages:
     resolution: {integrity: sha512-Ne+eE4r0/iWnpAxD852z3A+N0Bt5RN//NjJwRd2VFHEmrywxf5vsZlh4R6lixl6B+wz/8d+maTSAkN1FIkI3LQ==}
     engines: {node: '>=10'}
 
+  type-fest@4.33.0:
+    resolution: {integrity: sha512-s6zVrxuyKbbAsSAD5ZPTB77q4YIdRctkTbJ2/Dqlinwz+8ooH2gd+YA7VA6Pa93KML9GockVvoxjZ2vHP+mu8g==}
+    engines: {node: '>=16'}
+
   typed-array-buffer@1.0.3:
     resolution: {integrity: sha512-nAYYwfY3qnzX30IkA6AQZjVbtK6duGontcQm1WSG1MD94YLqK0515GNApXkoxKOWMusVssAHWLh9SeaoefYFGw==}
     engines: {node: '>= 0.4'}
@@ -2356,6 +2366,10 @@ packages:
 
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
+
+  uuid@11.0.5:
+    resolution: {integrity: sha512-508e6IcKLrhxKdBbcA2b4KQZlLVp2+J5UwQ6F7Drckkc5N9ZJwFa4TgWtsww9UG8fGHbm6gbV19TdM5pQ4GaIA==}
+    hasBin: true
 
   which-boxed-primitive@1.1.1:
     resolution: {integrity: sha512-TbX3mj8n0odCBFVlY8AxkqcHASw3L60jIuF8jFP78az3C2YhmGvqbHBpAjTRH2/xqYunrJ9g1jSyjCjpoWzIAA==}
@@ -4608,6 +4622,8 @@ snapshots:
 
   type-fest@0.20.2: {}
 
+  type-fest@4.33.0: {}
+
   typed-array-buffer@1.0.3:
     dependencies:
       call-bound: 1.0.3
@@ -4657,6 +4673,8 @@ snapshots:
       punycode: 2.3.1
 
   util-deprecate@1.0.2: {}
+
+  uuid@11.0.5: {}
 
   which-boxed-primitive@1.1.1:
     dependencies:
