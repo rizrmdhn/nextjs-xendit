@@ -4,6 +4,8 @@ import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
 
 import { TRPCReactProvider } from "@/trpc/react";
+import { api, HydrateClient } from "@/trpc/server";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: "Create T3 App",
@@ -14,10 +16,16 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  void api.item.getItems.prefetch();
   return (
     <html lang="en" className={`${GeistSans.variable}`}>
       <body>
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+        <TRPCReactProvider>
+          <HydrateClient>
+            {children}
+            <Toaster position="bottom-right" richColors />
+          </HydrateClient>
+        </TRPCReactProvider>
       </body>
     </html>
   );

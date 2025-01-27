@@ -1,53 +1,84 @@
-import Link from "next/link";
+"use client";
 
-import { LatestPost } from "@/app/_components/post";
-import { api, HydrateClient } from "@/trpc/server";
+import { useState } from "react";
+import { Header } from "@/components/header";
+import { ItemCard } from "@/components/item-card";
+import type { Items } from "@/types/item.types";
+import { globalSuccessToast } from "@/lib/toast";
+import { api } from "@/trpc/react";
 
-export default async function Home() {
-  const hello = await api.post.hello({ text: "from tRPC" });
+const currencies = {
+  USD: { symbol: "$", rate: 1 },
+  EUR: { symbol: "€", rate: 0.92 },
+  GBP: { symbol: "£", rate: 0.79 },
+  JPY: { symbol: "¥", rate: 143.08 },
+};
 
-  void api.post.getLatest.prefetch();
+export default function Home() {
+  const isLoggedIn = true;
+
+  const [items] = api.item.getItems.useSuspenseQuery();
+
+  const [cartItems, setCartItems] = useState<
+    { item: Items; quantity: number }[]
+  >([]);
+  const [selectedCurrency, setSelectedCurrency] =
+    useState<keyof typeof currencies>("USD");
+
+  const handleAddToCart = (item: Items, quantity: number) => {
+    setCartItems((prevItems) => {
+      const existingItem = prevItems.find(
+        (cartItem) => cartItem.item.id === item.id,
+      );
+      if (existingItem) {
+        return prevItems.map((cartItem) =>
+          cartItem.item.id === item.id
+            ? { ...cartItem, quantity: cartItem.quantity + quantity }
+            : cartItem,
+        );
+      } else {
+        return [...prevItems, { item, quantity }];
+      }
+    });
+    globalSuccessToast(`Added ${quantity} ${item.name} to the cart.`);
+  };
+
+  const handleBuyNow = (item: Items, quantity: number) => {
+    setCartItems([{ item, quantity }]);
+    globalSuccessToast(`Bought ${quantity} ${item.name}.`);
+  };
 
   return (
-    <HydrateClient>
-      <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
-        <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16">
-          <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
-            Create <span className="text-[hsl(280,100%,70%)]">T3</span> App
-          </h1>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-8">
-            <Link
-              className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 hover:bg-white/20"
-              href="https://create.t3.gg/en/usage/first-steps"
-              target="_blank"
-            >
-              <h3 className="text-2xl font-bold">First Steps →</h3>
-              <div className="text-lg">
-                Just the basics - Everything you need to know to set up your
-                database and authentication.
-              </div>
-            </Link>
-            <Link
-              className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 hover:bg-white/20"
-              href="https://create.t3.gg/en/introduction"
-              target="_blank"
-            >
-              <h3 className="text-2xl font-bold">Documentation →</h3>
-              <div className="text-lg">
-                Learn more about Create T3 App, the libraries it uses, and how
-                to deploy it.
-              </div>
-            </Link>
-          </div>
-          <div className="flex flex-col items-center gap-2">
-            <p className="text-2xl text-white">
-              {hello ? hello.greeting : "Loading tRPC query..."}
+    <div className="min-h-screen bg-gray-100">
+      <Header
+        isLoggedIn={isLoggedIn}
+        cartItemCount={cartItems.reduce((sum, item) => sum + item.quantity, 0)}
+        selectedCurrency={selectedCurrency}
+        onSelectCurrency={(currency) =>
+          setSelectedCurrency(currency as keyof typeof currencies)
+        }
+      />
+      <main className="container mx-auto px-4 py-8">
+        <h1 className="mb-6 text-3xl font-bold text-gray-800">Our Products</h1>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {items.length === 0 ? (
+            <p className="col-span-full text-center text-gray-600">
+              No items available.
             </p>
-          </div>
-
-          <LatestPost />
+          ) : (
+            items.map((item) => (
+              <ItemCard
+                key={item.id}
+                item={item}
+                onAddToCart={handleAddToCart}
+                onBuyNow={handleBuyNow}
+                currencySymbol={currencies[selectedCurrency].symbol}
+                currencyRate={currencies[selectedCurrency].rate}
+              />
+            ))
+          )}
         </div>
       </main>
-    </HydrateClient>
+    </div>
   );
 }

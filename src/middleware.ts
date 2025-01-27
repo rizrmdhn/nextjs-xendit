@@ -7,7 +7,7 @@ export async function middleware(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
 
   // List of public routes that don't require authentication
-  const publicRoutes = ["/sign-in", "/sign-up"] as const;
+  const publicRoutes = ["/", "/sign-in", "/sign-up"] as const;
   type PublicRoute = (typeof publicRoutes)[number];
 
   const isPublicRoute = (path: string): path is PublicRoute =>
