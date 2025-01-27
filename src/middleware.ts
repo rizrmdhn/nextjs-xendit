@@ -6,11 +6,14 @@ import { decrypt } from "@/server/auth";
 export async function middleware(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
 
+  const defaultRedirectLoggedOut = new URL("/sign-in", request.url);
+  const defaultRedirectLoggedIn = new URL("/", request.url);
+
   // List of routes that can be accessed by authenticated users or guests
   const routes = ["/"] as const;
 
   // List of public routes that don't require authentication
-  const publicRoutes = ["/", "/sign-in", "/sign-up"] as const;
+  const publicRoutes = ["/sign-in", "/sign-up"] as const;
   type PublicRoute = (typeof publicRoutes)[number];
 
   const isPublicRoute = (path: string): path is PublicRoute =>
@@ -20,7 +23,7 @@ export async function middleware(request: NextRequest) {
     !routes.includes(path as (typeof routes)[number]);
 
   if (!token && !isPublicRoute(request.nextUrl.pathname)) {
-    return NextResponse.redirect(new URL("/sign-in", request.url));
+    return NextResponse.redirect(defaultRedirectLoggedOut);
   }
 
   if (token) {
@@ -36,7 +39,7 @@ export async function middleware(request: NextRequest) {
         isPublicRoute(request.nextUrl.pathname) &&
         isRoute(request.nextUrl.pathname)
       ) {
-        return NextResponse.redirect(new URL("/", request.url));
+        return NextResponse.redirect(defaultRedirectLoggedIn);
       }
 
       return NextResponse.next({
@@ -49,7 +52,7 @@ export async function middleware(request: NextRequest) {
         console.error("Token validation error:", error.message);
       }
       // If token is invalid, clear it and redirect to login
-      const response = NextResponse.redirect(new URL("/sign-in", request.url));
+      const response = NextResponse.redirect(defaultRedirectLoggedOut);
       response.cookies.delete("token");
       return response;
     }
