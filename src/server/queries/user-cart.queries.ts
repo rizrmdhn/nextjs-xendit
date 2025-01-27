@@ -52,6 +52,12 @@ export async function addItemToCart(
   itemId: string,
   qty: number,
 ) {
+  const isExists = await getUserCartItems(userId, itemId);
+
+  if (isExists) {
+    return updateCartItemQuantity(userId, itemId, isExists.quantity + qty);
+  }
+
   const [cartItem] = await db
     .insert(userCart)
     .values({

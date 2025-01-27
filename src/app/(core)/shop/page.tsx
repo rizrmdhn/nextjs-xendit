@@ -22,6 +22,7 @@ export default function Home() {
       );
 
       await utils.cart.cartItemCounter.invalidate();
+      await utils.cart.getCart.invalidate();
     },
     onError: (error) => {
       globalErrorToast(error.message);
