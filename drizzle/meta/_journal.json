@@ -8,6 +8,13 @@
       "when": 1737938209721,
       "tag": "0000_burly_nehzno",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1737938696178,
+      "tag": "0001_dazzling_kree",
+      "breakpoints": true
     }
   ]
 }

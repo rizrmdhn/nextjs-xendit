@@ -101,9 +101,9 @@ export const items = createTable(
     }),
   },
   (table) => [
-    unique("name_unique").on(table.name),
-    index("name_idx").using("btree", table.name),
-    index("item_idx").using("btree", table.id),
+    unique("items_name_unique").on(table.name),
+    index("items_name_idx").using("btree", table.name),
+    index("items_item_idx").using("btree", table.id),
   ],
 );
 
@@ -132,8 +132,8 @@ export const userCart = createTable(
       .notNull(),
   },
   (table) => [
-    index("user_id_idx").using("btree", table.userId),
-    index("item_id_idx").using("btree", table.itemId),
+    index("userCart_user_id_idx").using("btree", table.userId),
+    index("userCart_item_id_idx").using("btree", table.itemId),
   ],
 );
 
@@ -163,5 +163,5 @@ export const orders = createTable(
       .$default(() => sql`CURRENT_TIMESTAMP`)
       .notNull(),
   },
-  (table) => [index("user_id_idx").using("btree", table.userId)],
+  (table) => [index("orders_user_id_idx").using("btree", table.userId)],
 );
