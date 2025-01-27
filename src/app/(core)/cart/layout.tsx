@@ -1,4 +1,4 @@
-import { api } from "@/trpc/server";
+import { api, HydrateClient } from "@/trpc/server";
 
 interface CartLayoutProps {
   children: React.ReactNode;
@@ -7,5 +7,5 @@ interface CartLayoutProps {
 export default function CartLayout({ children }: CartLayoutProps) {
   void api.cart.getCart.prefetch();
   void api.cart.cartTotal.prefetch();
-  return children;
+  return <HydrateClient>{children}</HydrateClient>;
 }

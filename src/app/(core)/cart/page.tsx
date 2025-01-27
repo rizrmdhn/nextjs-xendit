@@ -48,12 +48,26 @@ export default function Cart() {
     },
   });
 
+  const checkoutMutation = api.xendit.createInvoice.useMutation({
+    onSuccess: async (data) => {
+      globalSuccessToast("Proceeded to checkout successfully.");
+      window.open(data.invoiceUrl, "_blank")?.focus();
+    },
+    onError: (error) => {
+      globalErrorToast(error.message);
+    },
+  });
+
   const handleUpdateQuantity = (id: string, newQuantity: number) => {
     updateItemQuantityMutation.mutate({ itemId: id, quantity: newQuantity });
   };
 
   const handleRemoveItem = (id: string) => {
     removeItemMutation.mutate({ itemId: id });
+  };
+
+  const handleCheckout = () => {
+    checkoutMutation.mutate();
   };
 
   return (
@@ -117,12 +131,7 @@ export default function Cart() {
               </div>
             </CardContent>
             <CardFooter>
-              <Button
-                className="w-full"
-                onClick={() =>
-                  globalSuccessToast("Proceeded to checkout successfully.")
-                }
-              >
+              <Button className="w-full" onClick={() => handleCheckout()}>
                 Proceed to Checkout
               </Button>
             </CardFooter>

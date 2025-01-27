@@ -2,6 +2,7 @@ import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
 import { itemsRouter } from "./routers/item";
 import { authRouter } from "./routers/auth";
 import { cartRouter } from "./routers/cart";
+import { xenditRouter } from "./routers/xendit";
 
 /**
  * This is the primary router for your server.
@@ -12,6 +13,7 @@ export const appRouter = createTRPCRouter({
   auth: authRouter,
   item: itemsRouter,
   cart: cartRouter,
+  xendit: xenditRouter,
 });
 
 // export type definition of API
