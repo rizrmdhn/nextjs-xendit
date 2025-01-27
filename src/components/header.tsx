@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { ShoppingCart, User } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { CurrencySelector } from "@/components/currency-selector";
+import AccountButton from "./account-button";
 
 interface HeaderProps {
   isLoggedIn: boolean;
@@ -38,11 +39,7 @@ export function Header({
               </Badge>
             )}
           </Link>
-          {isLoggedIn && (
-            <Link href="/account" className="text-gray-600 hover:text-gray-800">
-              <User className="h-6 w-6" />
-            </Link>
-          )}
+          {isLoggedIn && <AccountButton />}
         </div>
       </div>
     </header>

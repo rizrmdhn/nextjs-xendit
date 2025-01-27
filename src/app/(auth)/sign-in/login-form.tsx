@@ -29,15 +29,20 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function LoginForm() {
+  const utils = api.useUtils();
+
   const [type, setType] = useState<"text" | "password">("password");
 
   const router = useRouter();
 
   const { mutate, status } = api.auth.login.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
       globalSuccessToast("Login success");
 
-      router.push(`/`);
+      await utils.cart.cartItemCounter.invalidate();
+      await utils.auth.me.invalidate();
+
+      router.push(`/shop`);
     },
     onError: (error) => {
       globalErrorToast(error.message);

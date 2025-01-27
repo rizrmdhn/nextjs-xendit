@@ -13,12 +13,11 @@ export const metadata: Metadata = {
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   void api.item.getItems.prefetch();
-  void api.auth.me.prefetch();
-  void api.cart.cartItemCounter.prefetch();
+
   return (
     <html lang="en" className={`${GeistSans.variable}`}>
       <body>
