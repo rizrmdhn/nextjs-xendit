@@ -4,6 +4,7 @@
 import { sql } from "drizzle-orm";
 import {
   index,
+  integer,
   pgTableCreator,
   timestamp,
   unique,
@@ -76,4 +77,91 @@ export const sessions = createTable(
       index("user_id_idx").on(session.userId),
     ];
   },
+);
+
+export const items = createTable(
+  "items",
+  {
+    id: uuid("id")
+      .primaryKey()
+      .notNull()
+      .$default(() => uuidv7()),
+    name: varchar("name", { length: 50 }).notNull(),
+    description: varchar("description", { length: 255 }),
+    price: integer("price").notNull(),
+    createdAt: timestamp("created_at", {
+      withTimezone: true,
+      mode: "string",
+    })
+      .$default(() => sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: timestamp("updated_at", {
+      withTimezone: true,
+      mode: "string",
+    }),
+  },
+  (table) => [
+    unique("name_unique").on(table.name),
+    index("name_idx").using("btree", table.name),
+    index("item_idx").using("btree", table.id),
+  ],
+);
+
+export const userCart = createTable(
+  "user_cart",
+  {
+    id: uuid("id")
+      .primaryKey()
+      .notNull()
+      .$default(() => uuidv7()),
+    userId: uuid("user_id")
+      .references(() => users.id, {
+        onDelete: "cascade",
+      })
+      .notNull(),
+    itemId: uuid("item_id")
+      .references(() => items.id, {
+        onDelete: "cascade",
+      })
+      .notNull(),
+    createdAt: timestamp("created_at", {
+      withTimezone: true,
+      mode: "string",
+    })
+      .$default(() => sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+  },
+  (table) => [
+    index("user_id_idx").using("btree", table.userId),
+    index("item_id_idx").using("btree", table.itemId),
+  ],
+);
+
+export const orders = createTable(
+  "orders",
+  {
+    id: uuid("id")
+      .primaryKey()
+      .notNull()
+      .$default(() => uuidv7()),
+    userId: uuid("user_id")
+      .references(() => users.id, {
+        onDelete: "cascade",
+      })
+      .notNull(),
+    itemId: uuid("item_id")
+      .references(() => items.id, {
+        onDelete: "cascade",
+      })
+      .notNull(),
+    quantity: integer("quantity").notNull(),
+    price: integer("price").notNull(),
+    createdAt: timestamp("created_at", {
+      withTimezone: true,
+      mode: "string",
+    })
+      .$default(() => sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+  },
+  (table) => [index("user_id_idx").using("btree", table.userId)],
 );
