@@ -43,6 +43,7 @@ export default function Cart() {
       globalSuccessToast("Item removed from cart.");
       await utils.cart.getCart.invalidate();
       await utils.cart.cartTotal.invalidate();
+      await utils.cart.cartItemCounter.invalidate();
     },
     onError: (error) => {
       globalErrorToast(error.message);
