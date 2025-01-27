@@ -60,7 +60,7 @@ function CheckoutSuccessContent() {
         <Button variant="outline" onClick={() => router.push("/shop")}>
           Continue Shopping
         </Button>
-        <Button onClick={() => router.push("/account/orders")}>
+        <Button onClick={() => router.push(`/account/orders/${externalId}`)}>
           View Order Details
         </Button>
       </CardFooter>
