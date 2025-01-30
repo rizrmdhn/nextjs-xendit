@@ -7,9 +7,11 @@ import { globalErrorToast, globalSuccessToast } from "@/lib/toast";
 import { api } from "@/trpc/react";
 import { currencies } from "@/lib/constants";
 import { useCurrencyStore } from "@/stores/currency.stores";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const utils = api.useUtils();
+  const router = useRouter();
 
   const [items] = api.item.getItems.useSuspenseQuery();
 
@@ -43,6 +45,8 @@ export default function Home() {
       itemId: item.id,
       quantity,
     });
+
+    router.push("/cart");
   };
 
   return (
