@@ -163,3 +163,35 @@ export const orders = createTable(
   },
   (table) => [index("orders_user_id_idx").using("btree", table.userId)],
 );
+
+export const orderItems = createTable(
+  "order_items",
+  {
+    id: uuid("id")
+      .primaryKey()
+      .notNull()
+      .$default(() => uuidv7()),
+    orderId: uuid("order_id")
+      .references(() => orders.id, {
+        onDelete: "cascade",
+      })
+      .notNull(),
+    itemId: uuid("item_id")
+      .references(() => items.id, {
+        onDelete: "cascade",
+      })
+      .notNull(),
+    quantity: integer("quantity").notNull(),
+    price: integer("price").notNull(),
+    createdAt: timestamp("created_at", {
+      withTimezone: true,
+      mode: "string",
+    })
+      .$default(() => sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+  },
+  (table) => [
+    index("orderItems_order_id_idx").using("btree", table.orderId),
+    index("orderItems_item_id_idx").using("btree", table.itemId),
+  ],
+);
