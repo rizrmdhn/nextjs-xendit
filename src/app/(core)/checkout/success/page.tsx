@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { redirect, useRouter, useSearchParams } from "next/navigation";
 import { Header } from "@/components/header";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,11 +13,24 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { CheckCircle2 } from "lucide-react";
+import { api } from "@/trpc/react";
 
 function CheckoutSuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const externalId = searchParams.get("externalId");
+
+  if (!externalId) {
+    redirect("/shop");
+  }
+
+  const { data } = api.orders.getDetailOrders.useQuery({
+    externalId: externalId ?? "",
+  });
+
+  if (!data) {
+    redirect("/shop");
+  }
 
   return (
     <Card className="mx-auto max-w-2xl">
