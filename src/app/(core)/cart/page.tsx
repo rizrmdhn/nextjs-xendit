@@ -26,9 +26,13 @@ import { globalErrorToast, globalSuccessToast } from "@/lib/toast";
 import { currencies } from "@/lib/constants";
 import { api } from "@/trpc/react";
 import { useCurrencyStore } from "@/stores/currency.stores";
+import { useState } from "react";
+import { Loader2 } from "lucide-react";
 
 export default function Cart() {
   const utils = api.useUtils();
+
+  const [open, setOpen] = useState(false);
 
   const [cartItems] = api.cart.getCart.useSuspenseQuery();
 
@@ -63,7 +67,9 @@ export default function Cart() {
 
   const checkoutMutation = api.xendit.createInvoice.useMutation({
     onSuccess: async (data) => {
-      globalSuccessToast("Proceeded to checkout successfully.");
+      globalSuccessToast(
+        "Proceeded to checkout successfully please wait to be redirected to the payment page.",
+      );
 
       await utils.cart.getCart.invalidate();
 
@@ -71,6 +77,9 @@ export default function Cart() {
     },
     onError: (error) => {
       globalErrorToast(error.message);
+    },
+    onSettled: () => {
+      setOpen(false);
     },
   });
 
@@ -158,9 +167,13 @@ export default function Cart() {
               </div>
             </CardContent>
             <CardFooter>
-              <AlertDialog>
+              <AlertDialog open={open}>
                 <AlertDialogTrigger asChild>
-                  <Button className="w-full" disabled={cartItems.length === 0}>
+                  <Button
+                    className="w-full"
+                    disabled={cartItems.length === 0}
+                    onClick={() => setOpen(true)}
+                  >
                     {cartItems.length === 0
                       ? "Cart is empty"
                       : "Proceed to Checkout"}
@@ -178,7 +191,13 @@ export default function Cart() {
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => handleCheckout()}>
+                    <AlertDialogAction
+                      onClick={() => handleCheckout()}
+                      disabled={checkoutMutation.isPending}
+                    >
+                      {checkoutMutation.isPending && (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      )}
                       Continue
                     </AlertDialogAction>
                   </AlertDialogFooter>

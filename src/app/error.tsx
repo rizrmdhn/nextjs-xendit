@@ -51,7 +51,7 @@ export default function ErrorPage({
             </p>
           </CardContent>
           <CardFooter className="flex justify-center space-x-4">
-            <Button variant="outline" onClick={() => router.push("/")}>
+            <Button variant="outline" onClick={() => router.push("/shop")}>
               Return to Home
             </Button>
             <Button onClick={() => reset()}>Try Again</Button>
