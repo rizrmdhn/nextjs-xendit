@@ -72,6 +72,7 @@ export default function Cart() {
       );
 
       await utils.cart.getCart.invalidate();
+      await utils.cart.cartItemCounter.invalidate();
 
       window.open(data.invoiceUrl, "_blank")?.focus();
     },

@@ -37,7 +37,8 @@ async function POST(req: NextRequest) {
 
   const status = requestJson.status as InvoiceStatus;
 
-  const isPaid = status === "PAID" || status === "SETTLED";
+  const isPaid =
+    status === "PAID" || status === "SETTLED" || status === "EXPIRED";
 
   // update order status
   await updateOrderByExternalIdStatus(
