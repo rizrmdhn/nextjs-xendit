@@ -13,34 +13,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { CheckCircle2 } from "lucide-react";
-import { useEffect } from "react";
-import { api } from "@/trpc/react";
-import { globalErrorToast } from "@/lib/toast";
 
 function CheckoutSuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const externalId = searchParams.get("externalId");
-
-  const { mutate } = api.orders.updateOrderStatus.useMutation({
-    onError: (error) => {
-      globalErrorToast(error.message);
-      router.push("/shop");
-    },
-  });
-
-  useEffect(() => {
-    if (!externalId || typeof externalId !== "string") {
-      router.push("/shop");
-    }
-
-    if (externalId) {
-      mutate({
-        externalId,
-        status: "SETTLED",
-      });
-    }
-  }, [externalId, mutate, router]);
 
   return (
     <Card className="mx-auto max-w-2xl">

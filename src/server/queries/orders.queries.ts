@@ -20,6 +20,14 @@ export async function getOrderById(userId: string, orderId: string) {
   return data;
 }
 
+export async function getWebhookOrderByExternalId(externalId: string) {
+  const data = await db.query.orders.findFirst({
+    where: eq(orders.externalId, externalId),
+  });
+
+  return data;
+}
+
 export async function getOrderByExternalId(externalId: string) {
   const data = await db.query.orders.findFirst({
     where: eq(orders.externalId, externalId),
@@ -56,6 +64,28 @@ export async function createOrder(
       message: "Failed to create order",
     });
   }
+
+  return data;
+}
+
+export async function updateOrderByExternalIdStatus(
+  externalId: string,
+  status: InvoiceStatus,
+) {
+  const isExists = await db.query.orders.findFirst({
+    where: eq(orders.externalId, externalId),
+  });
+
+  if (!isExists) {
+    throw new Error("Order not found");
+  }
+
+  const data = await db
+    .update(orders)
+    .set({
+      status,
+    })
+    .where(eq(orders.externalId, externalId));
 
   return data;
 }
