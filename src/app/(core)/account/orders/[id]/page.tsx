@@ -20,7 +20,7 @@ export default function OrderDetail() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
 
-  const { data: invoice, isPending } = api.xendit.getDetailInvoice.useQuery({
+  const [invoice, status] = api.orders.getDetailOrders.useSuspenseQuery({
     externalId: id,
   });
 
@@ -43,7 +43,7 @@ export default function OrderDetail() {
     }
   };
 
-  if (isPending) {
+  if (status.isPending) {
     return (
       <div className="min-h-screen bg-gray-100">
         <Header />
@@ -123,12 +123,12 @@ export default function OrderDetail() {
             <div className="space-y-4">
               <div>
                 <h3 className="font-semibold">Order Date:</h3>
-                <p>{new Date(invoice.created).toLocaleDateString()}</p>
+                <p>{new Date(invoice.createdAt).toLocaleDateString()}</p>
               </div>
               <div>
                 <h3 className="font-semibold">Status:</h3>
                 <Badge
-                  className={`${getStatusColor(invoice.status)} text-white`}
+                  className={`${getStatusColor(invoice.status as InvoiceStatus)} text-white`}
                 >
                   {invoice.status.charAt(0).toUpperCase() +
                     invoice.status.slice(1)}
@@ -137,9 +137,9 @@ export default function OrderDetail() {
               <div>
                 <h3 className="font-semibold">Items:</h3>
                 <ul className="list-inside list-disc">
-                  {(invoice.items ?? []).map((item, index) => (
+                  {(invoice.orderItems ?? []).map((item, index) => (
                     <li key={index}>
-                      {item.name} x {item.quantity} -{" "}
+                      {item.items.name} x {item.quantity} -{" "}
                       {new Intl.NumberFormat("en-US", {
                         style: "currency",
                         currency: selectedCurrency,
@@ -155,7 +155,7 @@ export default function OrderDetail() {
                     style: "currency",
                     currency: selectedCurrency,
                   }).format(
-                    (invoice.items ?? []).reduce(
+                    (invoice.orderItems ?? []).reduce(
                       (acc, item) => acc + item.price * item.quantity,
                       0,
                     ),
@@ -172,7 +172,7 @@ export default function OrderDetail() {
               <Button
                 variant="outline"
                 onClick={() => {
-                  window.open(invoice.invoiceUrl, "_blank");
+                  window.open(invoice.invoiceUrl ?? "", "_blank");
                 }}
               >
                 Pay Now

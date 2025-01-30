@@ -25,11 +25,12 @@ export const userCartRelations = relations(userCart, ({ one }) => ({
   }),
 }));
 
-export const orderRelations = relations(orders, ({ one }) => ({
+export const orderRelations = relations(orders, ({ one, many }) => ({
   users: one(users, {
     fields: [orders.userId],
     references: [users.id],
   }),
+  orderItems: many(orderItems),
 }));
 
 export const orderItemsRelations = relations(orderItems, ({ one }) => ({

@@ -1,4 +1,5 @@
 import {
+  getOrderDetailsByExternalId,
   getUserOrders,
   updateOrderStatus,
 } from "@/server/queries/orders.queries";
@@ -12,6 +13,14 @@ export const ordersRouter = createTRPCRouter({
 
     return orders;
   }),
+
+  getDetailOrders: protectedProcedure
+    .input(z.object({ externalId: z.string() }))
+    .query(async ({ input: { externalId } }) => {
+      const data = await getOrderDetailsByExternalId(externalId);
+
+      return data;
+    }),
 
   updateOrderStatus: protectedProcedure
     .input(

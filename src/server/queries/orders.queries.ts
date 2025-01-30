@@ -1,5 +1,5 @@
 import { and, eq } from "drizzle-orm";
-import { db } from "../db";
+import { db, type DBType } from "../db";
 import { orders } from "../db/schema";
 import { TRPCError } from "@trpc/server";
 import type { InvoiceStatus } from "xendit-node/invoice/models";
@@ -43,20 +43,52 @@ export async function getOrderByExternalId(externalId: string) {
   return data;
 }
 
+export async function getOrderDetailsByExternalId(externalId: string) {
+  const data = await db.query.orders.findFirst({
+    where: eq(orders.externalId, externalId),
+    with: {
+      users: true,
+      orderItems: {
+        with: {
+          items: true,
+        },
+      },
+    },
+  });
+
+  if (!data) {
+    throw new TRPCError({
+      code: "NOT_FOUND",
+      message: "Order not found",
+    });
+  }
+
+  return data;
+}
+
 export async function createOrder(
+  transaction: DBType,
   userId: string,
   invoiceId: string,
   externalId: string,
   total: number,
   status: string,
+  invoiceUrl: string,
 ) {
-  const data = await db.insert(orders).values({
-    userId,
-    invoiceId,
-    externalId,
-    total,
-    status,
-  });
+  const [data] = await transaction
+    .insert(orders)
+    .values({
+      userId,
+      invoiceId,
+      externalId,
+      total,
+      status,
+      invoiceUrl,
+    })
+    .returning({
+      insertedId: orders.id,
+    })
+    .execute();
 
   if (!data) {
     throw new TRPCError({
@@ -71,6 +103,7 @@ export async function createOrder(
 export async function updateOrderByExternalIdStatus(
   externalId: string,
   status: InvoiceStatus,
+  removeInvoiceUrl?: boolean,
 ) {
   const isExists = await db.query.orders.findFirst({
     where: eq(orders.externalId, externalId),
@@ -84,6 +117,7 @@ export async function updateOrderByExternalIdStatus(
     .update(orders)
     .set({
       status,
+      invoiceUrl: removeInvoiceUrl ? null : orders.invoiceUrl,
     })
     .where(eq(orders.externalId, externalId));
 

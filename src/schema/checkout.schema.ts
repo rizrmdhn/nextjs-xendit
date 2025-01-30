@@ -3,6 +3,7 @@ import { z } from "zod";
 export const createCheckoutSchema = z.object({
   items: z.array(
     z.object({
+      id: z.string(),
       name: z.string(),
       price: z.number().int(),
       quantity: z.number().int(),

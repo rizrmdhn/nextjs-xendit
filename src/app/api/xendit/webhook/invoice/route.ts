@@ -35,11 +35,15 @@ async function POST(req: NextRequest) {
     return Response.json({ message: "Order not found" }, { status: 404 });
   }
 
-  // update order status
+  const status = requestJson.status as InvoiceStatus;
 
+  const isPaid = status === "PAID" || status === "SETTLED";
+
+  // update order status
   await updateOrderByExternalIdStatus(
     order.externalId,
-    requestJson.status as InvoiceStatus,
+    status,
+    isPaid ? true : false,
   );
 
   return Response.json({ message: "Order updated" });

@@ -11,11 +11,12 @@ import {
 import { clearUserCart } from "@/server/queries/user-cart.queries";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
+import { createOrderItems } from "@/server/queries/order-items.queries";
 
 export const xenditRouter = createTRPCRouter({
   createInvoice: protectedProcedure
     .input(createCheckoutSchema)
-    .mutation(async ({ ctx: { user }, input }) => {
+    .mutation(async ({ ctx: { user, db }, input }) => {
       const Invoice = getInvoiceClient();
 
       if (!Invoice) {
@@ -62,13 +63,25 @@ export const xenditRouter = createTRPCRouter({
 
       const invoice = await Invoice.createInvoice({ data });
 
-      await createOrder(
-        user.id,
-        invoice.id ?? "",
-        invoice.externalId,
-        amount,
-        invoice.status,
-      );
+      await db.transaction(async (transaction) => {
+        const data = await createOrder(
+          transaction,
+          user.id,
+          invoice.id ?? "",
+          invoice.externalId,
+          amount,
+          invoice.status,
+          invoice.invoiceUrl,
+        );
+
+        const mappedItems = input.items.map((item) => ({
+          itemId: item.id,
+          quantity: item.quantity,
+          price: item.price,
+        }));
+
+        await createOrderItems(transaction, data.insertedId, mappedItems);
+      });
 
       await clearUserCart(user.id);
 

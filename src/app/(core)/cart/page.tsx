@@ -87,6 +87,7 @@ export default function Cart() {
 
     checkoutMutation.mutate({
       items: cartItems.map(({ items, quantity }) => ({
+        id: items.id,
         name: items.name,
         price: items.price,
         quantity,
