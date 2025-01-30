@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { Header } from "@/components/header";
 import CheckoutSuccessContent from "./checkout-content";
-import { api } from "@/trpc/server";
+import { api, HydrateClient } from "@/trpc/server";
 import CheckoutSuccessLoader from "./checkout-content-loader";
 
 interface CheckoutSuccessProps {
@@ -19,9 +19,11 @@ export default async function CheckoutSuccess({
     <div className="min-h-screen bg-gray-100">
       <Header />
       <main className="container mx-auto px-4 py-8">
-        <Suspense fallback={<CheckoutSuccessLoader />}>
-          <CheckoutSuccessContent />
-        </Suspense>
+        <HydrateClient>
+          <Suspense fallback={<CheckoutSuccessLoader />}>
+            <CheckoutSuccessContent />
+          </Suspense>
+        </HydrateClient>
       </main>
     </div>
   );
