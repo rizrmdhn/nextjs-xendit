@@ -14,6 +14,7 @@ export const env = createEnv({
     JWT_SECRET_KEY: z.string(),
     XENDIT_SECRET_KEY: z.string(),
     SUCCESS_REDIRECT_URL: z.string().url(),
+    INVOICE_EXPIRATION_DURATION: z.string().default("900"),
   },
 
   /**
@@ -35,6 +36,7 @@ export const env = createEnv({
     JWT_SECRET_KEY: process.env.JWT_SECRET_KEY,
     XENDIT_SECRET_KEY: process.env.XENDIT_SECRET_KEY,
     SUCCESS_REDIRECT_URL: process.env.SUCCESS_REDIRECT_URL,
+    INVOICE_EXPIRATION_DURATION: process.env.INVOICE_EXPIRATION_DURATION,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
   /**

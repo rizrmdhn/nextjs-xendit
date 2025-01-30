@@ -154,6 +154,10 @@ export const orders = createTable(
     invoiceId: varchar("invoice", { length: 50 }).notNull(),
     externalId: varchar("external_id", { length: 50 }).notNull(),
     status: varchar("status", { length: 50 }).notNull(),
+    invalidTime: timestamp("invalid_time", {
+      withTimezone: true,
+      mode: "string",
+    }).notNull(),
     invoiceUrl: varchar("invoice_url", { length: 255 }),
     createdAt: timestamp("created_at", {
       withTimezone: true,

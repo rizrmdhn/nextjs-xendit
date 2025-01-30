@@ -73,6 +73,7 @@ export async function createOrder(
   externalId: string,
   total: number,
   status: string,
+  invalidTime: string,
   invoiceUrl: string,
 ) {
   const [data] = await transaction
@@ -83,6 +84,7 @@ export async function createOrder(
       externalId,
       total,
       status,
+      invalidTime,
       invoiceUrl,
     })
     .returning({

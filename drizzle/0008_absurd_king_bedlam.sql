@@ -1,0 +1,1 @@
+ALTER TABLE "orders" ADD COLUMN "invalid_time" timestamp with time zone NOT NULL;

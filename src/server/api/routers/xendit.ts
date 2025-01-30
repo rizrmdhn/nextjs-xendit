@@ -4,14 +4,12 @@ import type { CreateInvoiceRequest } from "xendit-node/invoice/models";
 import { v7 as uuidv7 } from "uuid";
 import { createCheckoutSchema } from "@/schema/checkout.schema";
 import { env } from "@/env";
-import {
-  createOrder,
-  getOrderByExternalId,
-} from "@/server/queries/orders.queries";
+import { createOrder } from "@/server/queries/orders.queries";
 import { clearUserCart } from "@/server/queries/user-cart.queries";
-import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { createOrderItems } from "@/server/queries/order-items.queries";
+import { addMinutes, format } from "date-fns";
+import { id } from "date-fns/locale";
 
 export const xenditRouter = createTRPCRouter({
   createInvoice: protectedProcedure
@@ -40,7 +38,8 @@ export const xenditRouter = createTRPCRouter({
 
       const data: CreateInvoiceRequest = {
         amount: amount,
-        invoiceDuration: "172800",
+        // 15 minutes
+        invoiceDuration: `${env.INVOICE_EXPIRATION_DURATION}`,
         externalId,
         description: input.description,
         currency: input.currency,
@@ -63,6 +62,14 @@ export const xenditRouter = createTRPCRouter({
 
       const invoice = await Invoice.createInvoice({ data });
 
+      const dateInvalid = format(
+        addMinutes(new Date(), Number(env.INVOICE_EXPIRATION_DURATION)),
+        "yyyy-MM-dd HH:mm:ss",
+        {
+          locale: id,
+        },
+      );
+
       await db.transaction(async (transaction) => {
         const data = await createOrder(
           transaction,
@@ -71,6 +78,7 @@ export const xenditRouter = createTRPCRouter({
           invoice.externalId,
           amount,
           invoice.status,
+          dateInvalid,
           invoice.invoiceUrl,
         );
 
@@ -84,31 +92,6 @@ export const xenditRouter = createTRPCRouter({
       });
 
       await clearUserCart(user.id);
-
-      return invoice;
-    }),
-
-  getDetailInvoice: protectedProcedure
-    .input(
-      z.object({
-        externalId: z.string(),
-      }),
-    )
-    .query(async ({ input: { externalId } }) => {
-      const Invoice = getInvoiceClient();
-
-      if (!Invoice) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Payment service not initialized",
-        });
-      }
-
-      const orders = await getOrderByExternalId(externalId);
-
-      const invoice = await Invoice.getInvoiceById({
-        invoiceId: orders.invoiceId,
-      });
 
       return invoice;
     }),

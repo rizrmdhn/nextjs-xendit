@@ -15,6 +15,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { useCurrencyStore } from "@/stores/currency.stores";
 import { api } from "@/trpc/react";
+import { format, formatDistance } from "date-fns";
+import { id } from "date-fns/locale";
 import type { InvoiceStatus } from "xendit-node/invoice/models";
 
 export default function OrderList() {
@@ -55,39 +57,73 @@ export default function OrderList() {
                   <TableHead>Date</TableHead>
                   <TableHead>Total</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Payment Time</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {orders.map((order) => (
-                  <TableRow key={order.id}>
-                    <TableCell>{order.id}</TableCell>
-                    <TableCell>
-                      {new Date(order.createdAt).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>
-                      {new Intl.NumberFormat("en-US", {
-                        style: "currency",
-                        currency: selectedCurrency,
-                      }).format(order.total)}
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        className={`${getStatusColor(order.status as InvoiceStatus)} text-white`}
-                      >
-                        {order.status.charAt(0).toUpperCase() +
-                          order.status.slice(1)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Button asChild variant="outline" size="sm">
-                        <Link href={`/account/orders/${order.externalId}`}>
-                          View Details
-                        </Link>
-                      </Button>
+                {orders.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="py-4 text-center">
+                      No orders found
                     </TableCell>
                   </TableRow>
-                ))}
+                ) : (
+                  orders.map((order) => (
+                    <TableRow key={order.id}>
+                      <TableCell>{order.id}</TableCell>
+                      <TableCell>
+                        {format(new Date(order.createdAt), "PPP", {
+                          locale: id,
+                        })}
+                      </TableCell>
+                      <TableCell>
+                        {new Intl.NumberFormat("en-US", {
+                          style: "currency",
+                          currency: selectedCurrency,
+                        }).format(order.total)}
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          className={`${getStatusColor(order.status as InvoiceStatus)} text-white`}
+                        >
+                          {order.status.charAt(0).toUpperCase() +
+                            order.status.slice(1)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {order.status === "PAID" ? (
+                          <div className="text-sm text-green-500">
+                            Payment completed
+                          </div>
+                        ) : new Date(order.invalidTime) < new Date() ? (
+                          <div className="text-sm text-red-500">Expired</div>
+                        ) : (
+                          <div className="text-sm text-gray-500">
+                            (
+                            {formatDistance(
+                              new Date(order.invalidTime),
+                              new Date(),
+                              {
+                                addSuffix: true,
+                                locale: id,
+                                includeSeconds: true,
+                              },
+                            )}
+                            )
+                          </div>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Button asChild variant="outline" size="sm">
+                          <Link href={`/account/orders/${order.externalId}`}>
+                            View Details
+                          </Link>
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           </CardContent>

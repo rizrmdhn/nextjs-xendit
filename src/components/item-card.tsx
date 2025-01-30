@@ -11,6 +11,7 @@ import {
 import { Plus, Minus, ShoppingCart } from "lucide-react";
 import type { Items } from "@/types/item.types";
 import { format } from "date-fns";
+import { id } from "date-fns/locale";
 import { useCurrencyStore } from "@/stores/currency.stores";
 import { api } from "@/trpc/react";
 
@@ -52,9 +53,19 @@ export function ItemCard({
           }).format(item.price * currencyRate)}
         </p>
         <div className="mt-4 text-sm text-gray-500">
-          <p>Created: {format(item.createdAt, "yyyy-MM-dd")}</p>
+          <p>
+            Created:{" "}
+            {format(item.createdAt, "yyyy-MM-dd", {
+              locale: id,
+            })}
+          </p>
           {item.updatedAt && (
-            <p>Updated: {format(item.updatedAt, "yyyy-MM-dd")}</p>
+            <p>
+              Updated:{" "}
+              {format(item.updatedAt, "yyyy-MM-dd", {
+                locale: id,
+              })}
+            </p>
           )}
         </div>
         {!!me && (
