@@ -8,7 +8,7 @@ import { createOrder } from "@/server/queries/orders.queries";
 import { clearUserCart } from "@/server/queries/user-cart.queries";
 import { TRPCError } from "@trpc/server";
 import { createOrderItems } from "@/server/queries/order-items.queries";
-import { addMinutes, format } from "date-fns";
+import { addSeconds, format } from "date-fns";
 import { id } from "date-fns/locale";
 
 export const xenditRouter = createTRPCRouter({
@@ -63,7 +63,7 @@ export const xenditRouter = createTRPCRouter({
       const invoice = await Invoice.createInvoice({ data });
 
       const dateInvalid = format(
-        addMinutes(new Date(), Number(env.INVOICE_EXPIRATION_DURATION)),
+        addSeconds(new Date(), Number(env.INVOICE_EXPIRATION_DURATION)),
         "yyyy-MM-dd HH:mm:ss",
         {
           locale: id,
