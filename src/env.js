@@ -12,7 +12,9 @@ export const env = createEnv({
       .enum(["development", "test", "production"])
       .default("development"),
     JWT_SECRET_KEY: z.string(),
+    CSRF_TOKEN: z.string(),
     XENDIT_SECRET_KEY: z.string(),
+    WEBHOOK_TOKEN: z.string(),
     SUCCESS_REDIRECT_URL: z.string().url(),
     INVOICE_EXPIRATION_DURATION: z.string().default("900"),
   },
@@ -34,6 +36,8 @@ export const env = createEnv({
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
     JWT_SECRET_KEY: process.env.JWT_SECRET_KEY,
+    CSRF_TOKEN: process.env.CSRF_TOKEN,
+    WEBHOOK_TOKEN: process.env.WEBHOOK_TOKEN,
     XENDIT_SECRET_KEY: process.env.XENDIT_SECRET_KEY,
     SUCCESS_REDIRECT_URL: process.env.SUCCESS_REDIRECT_URL,
     INVOICE_EXPIRATION_DURATION: process.env.INVOICE_EXPIRATION_DURATION,
