@@ -5,13 +5,25 @@ import {
 import { type XenditInvoiceWebhookRequest } from "@/types/webhook.types";
 import { type NextRequest } from "next/server";
 import { type InvoiceStatus } from "xendit-node/invoice/models";
-import { validateHeaders } from "@/lib/server-utils";
+
+async function validateSignature(signature: string) {
+  if (signature !== process.env.WEBHOOK_TOKEN) return false;
+
+  return true;
+}
 
 async function POST(req: NextRequest) {
-  const res = await validateHeaders(req.headers);
+  // get xendit headers
+  const xenditSignature = req.headers.get("x-callback-token");
 
-  if (res.error) {
-    return Response.json({ message: res.errorMessage }, { status: 400 });
+  if (!xenditSignature) {
+    return Response.json({ message: "No signature given" }, { status: 401 });
+  }
+
+  const isValid = await validateSignature(xenditSignature);
+
+  if (!isValid) {
+    return Response.json({ message: "Invalid signature" }, { status: 401 });
   }
 
   const requestJson = (await req.json()) as XenditInvoiceWebhookRequest;
@@ -39,10 +51,17 @@ async function POST(req: NextRequest) {
 }
 
 async function GET(req: NextRequest) {
-  const res = await validateHeaders(req.headers);
+  // get xendit headers
+  const xenditSignature = req.headers.get("x-callback-token");
 
-  if (res.error) {
-    return Response.json({ message: res.errorMessage }, { status: 400 });
+  if (!xenditSignature) {
+    return Response.json({ message: "No signature given" }, { status: 401 });
+  }
+
+  const isValid = await validateSignature(xenditSignature);
+
+  if (!isValid) {
+    return Response.json({ message: "Invalid signature" }, { status: 401 });
   }
 
   return Response.json({ message: "Hello World" });

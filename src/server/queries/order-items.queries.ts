@@ -1,6 +1,7 @@
 import { tryCatch } from "@/lib/try-catch";
 import { type DBType } from "../db";
 import { orderItems } from "../db/schema";
+import { error } from "console";
 
 export async function createOrderItems(
   transaction: DBType,
@@ -20,7 +21,8 @@ export async function createOrderItems(
   );
 
   if (result.error) {
-    throw result.error as unknown as Error;
+    console.error(result.error);
+    throw error as unknown as Error;
   }
 
   return result.result;
