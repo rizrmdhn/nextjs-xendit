@@ -191,7 +191,12 @@ export default function Cart() {
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogCancel
+                      onClick={() => setOpen(false)}
+                      disabled={checkoutMutation.isPending}
+                    >
+                      Cancel
+                    </AlertDialogCancel>
                     <AlertDialogAction
                       onClick={() => handleCheckout()}
                       disabled={checkoutMutation.isPending}
