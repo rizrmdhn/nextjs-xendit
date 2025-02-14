@@ -22,7 +22,6 @@ export const cartRouter = createTRPCRouter({
   }),
 
   cartTotal: protectedProcedure.query(async ({ ctx: { user, headers } }) => {
-    console.log(headers);
     return await getUserCartTotal(user.id);
   }),
 
