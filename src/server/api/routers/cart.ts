@@ -21,7 +21,7 @@ export const cartRouter = createTRPCRouter({
     return await getUserCartCount(user.id);
   }),
 
-  cartTotal: protectedProcedure.query(async ({ ctx: { user, headers } }) => {
+  cartTotal: protectedProcedure.query(async ({ ctx: { user } }) => {
     return await getUserCartTotal(user.id);
   }),
 
