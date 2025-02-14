@@ -25,7 +25,6 @@ export default function OrderDetail() {
   });
 
   const selectedCurrency = useCurrencyStore((state) => state.currency);
-  const currencyRate = useCurrencyStore((state) => state.rate);
 
   const getStatusColor = (status: InvoiceStatus) => {
     switch (status) {
@@ -144,7 +143,7 @@ export default function OrderDetail() {
                       {new Intl.NumberFormat("en-US", {
                         style: "currency",
                         currency: selectedCurrency,
-                      }).format(item.price * item.quantity * currencyRate)}
+                      }).format(item.price * item.quantity)}
                     </li>
                   ))}
                 </ul>
@@ -159,7 +158,7 @@ export default function OrderDetail() {
                     (invoice.orderItems ?? []).reduce(
                       (acc, item) => acc + item.price * item.quantity,
                       0,
-                    ) * currencyRate,
+                    ),
                   )}
                 </p>
               </div>
