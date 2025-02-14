@@ -12,11 +12,9 @@ import csrf from "csrf";
 import { env } from "@/env";
 
 /**
- * CSRF Token
- *
- * @example type HelloInput = RouterInputs['example']['hello']
+ * Cross-Site Request Forgery (CSRF) token used for protecting against CSRF attacks.
+ * If not provided in environment variables, generates a secure random token.
  */
-
 const tokens = new csrf();
 const CSRF_TOKEN = env.CSRF_TOKEN ?? tokens.secretSync();
 
