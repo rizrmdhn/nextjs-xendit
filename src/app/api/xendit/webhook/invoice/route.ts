@@ -8,7 +8,7 @@ import { type InvoiceStatus } from "xendit-node/invoice/models";
 import { validateHeaders } from "@/lib/server-utils";
 
 async function POST(req: NextRequest) {
-  const res = await validateHeaders(req.headers);
+  const res = await validateHeaders(req.headers, true);
 
   if (res.error) {
     return Response.json({ message: res.errorMessage }, { status: 400 });

@@ -19,20 +19,21 @@ async function validateCSRFToken(token: string) {
   return true;
 }
 
-async function validateHeaders(headers: Headers) {
+/**
+ * Validates incoming request headers for authentication and security purposes
+ * @param headers - The Headers object from the incoming request
+ * @param isWebhook - Optional boolean flag to indicate if the request is a webhook (default: false)
+ * @returns Promise that resolves to a Result type containing true if validation succeeds
+ * @throws Error if x-callback-token is missing or invalid
+ * @throws Error if x-csrf-token is missing or invalid (only when isWebhook is false)
+ */
+async function validateHeaders(headers: Headers, isWebhook = false) {
   return tryCatch(async () => {
     // get xendit headers
     const xenditSignature = headers.get("x-callback-token");
 
-    // get csrf token
-    const csrfToken = headers.get("x-csrf-token");
-
     if (!xenditSignature) {
       throw new Error("No signature given");
-    }
-
-    if (!csrfToken) {
-      throw new Error("No CSRF token given");
     }
 
     const isValid = await validateSignature(xenditSignature);
@@ -41,10 +42,19 @@ async function validateHeaders(headers: Headers) {
       throw new Error("Invalid signature");
     }
 
-    const isValidCSRF = await validateCSRFToken(csrfToken);
+    // Only check CSRF token if not a webhook
+    if (!isWebhook) {
+      const csrfToken = headers.get("x-csrf-token");
 
-    if (!isValidCSRF) {
-      throw new Error("Invalid CSRF token");
+      if (!csrfToken) {
+        throw new Error("No CSRF token given");
+      }
+
+      const isValidCSRF = await validateCSRFToken(csrfToken);
+
+      if (!isValidCSRF) {
+        throw new Error("Invalid CSRF token");
+      }
     }
 
     return true;
